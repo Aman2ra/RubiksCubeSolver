@@ -2,24 +2,15 @@ package Solver.Temp;
 
 import Solver.BasicBuilders.Axis;
 import Solver.BasicBuilders.MyPoint;
-import jdk.swing.interop.SwingInterOpUtils;
 
 public class Solver {
     private RubiksCube rubiksCube;
     private Axis axis;
-    private EntityManager em;
     private double rSpeed = 90.0;
 
     public Solver(RubiksCube cube, Axis axis) {
         this.rubiksCube = cube;
         this.axis = axis;
-    }
-
-    //Delete after
-    public Solver(RubiksCube cube, Axis axis, EntityManager em) {
-        this.rubiksCube = cube;
-        this.axis = axis;
-        this.em = em;
     }
 
     public void solveCube(){
@@ -32,14 +23,10 @@ public class Solver {
         // Stage Four: Top [Yellow] Cross (Edge Orientation)
         solveStageFour();
         // Stage Five: Top [Yellow] Corner Orientation
+        solveStageFive();
         // Stage Six:  Top [Yellow] Corner Position
         // Stage Seven: Top [Yellow] Edge Position
         // Stage Eight: Top [Yellow] Fix Position
-        try {
-            Thread.sleep(200);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
     public void solveStageOne(){
@@ -51,8 +38,6 @@ public class Solver {
                 int[] orientation = ((Entity) cube).getOrientation();
                 MyPoint originalPos = ((Entity) cube).getOriginalSPosition();
                 MyPoint currentPos = ((Entity) cube).getCurrentSPosition();
-//                System.out.printf("%s\n" , colours);
-//                System.out.printf("     Current Position: (%.2f, %.2f, %.2f)\n", currentPos.x, currentPos.y, currentPos.z);
                 // If cube is in the middle layer, put it in the top layer
                 if (currentPos.y > -0.5 && currentPos.y < 0.5) {
                     if (currentPos.x > 0.5 && currentPos.z > 0.5) {
@@ -124,8 +109,6 @@ public class Solver {
                 int[] orientation = ((Entity) cube).getOrientation();
                 MyPoint originalPos = ((Entity) cube).getOriginalSPosition();
                 MyPoint currentPos = ((Entity) cube).getCurrentSPosition();
-//                System.out.printf("%s\n" , colours);
-//                System.out.printf("     Current Position: (%.2f, %.2f, %.2f)\n", currentPos.x, currentPos.y, currentPos.z);
                 // If cube is in the bottom layer, put it in the top layer if position and/or orientation is wrong
                 if (currentPos.y < -0.5 && (Math.abs(currentPos.x - originalPos.x) > 0.5 || Math.abs(currentPos.z - originalPos.z) > 0.5 ||
                         (orientation[0] != 0 || orientation[1] != 1 || orientation[2] != 2 || orientation[3] != 3 || orientation[4] != 4 || orientation[5] != 5))) {
@@ -202,7 +185,6 @@ public class Solver {
                     }
                     algString = executeAlg(algString);
                 }
-//                printInfo((Entity) cube);
             }
         }
         System.out.println("Solver - Stage Two: Bottom Corners Finished");
@@ -235,7 +217,6 @@ public class Solver {
                 orientation = ((Entity) cube).getOrientation();
                 currentPos = ((Entity) cube).getCurrentSPosition();
                 if (currentPos.y >= 0.5) {
-                    printInfo((Entity) cube);
                     // Cube on the opposite side
                     if (Math.abs(currentPos.x - originalPos.x) > 0.5 && Math.abs(currentPos.z - originalPos.z) > 0.5) {
                         algString = " UU ";
@@ -243,7 +224,6 @@ public class Solver {
                     algString = executeAlg(algString);
                     orientation = ((Entity) cube).getOrientation();
                     currentPos = ((Entity) cube).getCurrentSPosition();
-                    System.out.println(orientation[0] != 0 && orientation[1] != 1 && orientation[2] != 2 && orientation[3] != 3 && orientation[4] != 4 && orientation[5] != 5);;
                     if ((orientation[0] != 0) && (orientation[1] != 1) && (orientation[2] != 2) && (orientation[3] != 3) && (orientation[4] != 4) && (orientation[5] != 5)) {
                         double xC = Math.round(currentPos.x);
                         double zC = Math.round(currentPos.z);
@@ -282,10 +262,6 @@ public class Solver {
             String colours = ((Entity) cube).getColours();
             int[] orientation = ((Entity) cube).getOrientation();
             MyPoint currentPos = ((Entity) cube).getCurrentSPosition();
-            // If we are looking at the center cube, pass
-            if (Math.round(currentPos.x) == 0 && Math.round(currentPos.z) == 0) {
-                continue;
-            }
             // save the cubes to recognise the pattern with
             if (orientation[4] == 4 && colours.length() == 2) {
                 pointingUp += 1;
@@ -327,6 +303,99 @@ public class Solver {
         algString = executeAlg(algString);
         System.out.println("Solver - Stage Four: Yellow Cross Finished");
         return;
+    }
+
+    public void solveStageFive() {
+        System.out.println("Solver - Stage Five: Yellow Corners");
+        while (true) {
+            int pointingUp = 0;
+            Entity yellowCorner1 = null;
+            Entity yellowCorner2 = null;
+            Entity yellowCorner3 = null;
+            Entity yellowCorner4 = null;
+            for (IEntity cube : this.rubiksCube.getTop()) {
+                String colours = ((Entity) cube).getColours();
+                int[] orientation = ((Entity) cube).getOrientation();
+                // save the corner cubes to recognise the pattern with
+                if (orientation[4] == 4 && colours.length() == 3) {
+                    pointingUp += 1;
+                    if (yellowCorner1 == null) {
+                        yellowCorner1 = (Entity) cube;
+                    } else if (yellowCorner2 == null) {
+                        yellowCorner2 = (Entity) cube;
+                    } else if (yellowCorner3 == null) {
+                        yellowCorner3 = (Entity) cube;
+                    } else {
+                        yellowCorner4 = (Entity) cube;
+                    }
+                } else if (colours.length() == 3) {
+                    if (yellowCorner4 == null) {
+                        yellowCorner4 = (Entity) cube;
+                    } else if (yellowCorner3 == null) {
+                        yellowCorner3 = (Entity) cube;
+                    } else if (yellowCorner2 == null) {
+                        yellowCorner2 = (Entity) cube;
+                    } else {
+                        yellowCorner1 = (Entity) cube;
+                    }
+                }
+            }
+            // All corners already pointing up
+            if (pointingUp == 4) {
+                System.out.println("Solver - Stage Five: Yellow Corners Finished");
+                return;
+            }
+            // Best case, orient that cube to the bottom left then do the algorithm
+            String algString = " ";
+            if (pointingUp == 1) {
+                MyPoint currentPos = yellowCorner1.getCurrentSPosition();
+                double xC = Math.round(currentPos.x);
+                double zC = Math.round(currentPos.z);
+                if (xC == -1 && zC == -1) {
+                    algString = "U'";
+                } else if (xC == 1 && zC == -1) {
+                    algString = "UU";
+                } else if (xC == 1 && zC == 1) {
+                    algString = "U";
+                }
+            }
+            if (pointingUp == 2) {
+                MyPoint currentPos1 = yellowCorner1.getCurrentSPosition();
+                double xC1 = Math.round(currentPos1.x);
+                double zC1 = Math.round(currentPos1.z);
+                MyPoint currentPos2 = yellowCorner2.getCurrentSPosition();
+                double xC2 = Math.round(currentPos2.x);
+                double zC2 = Math.round(currentPos2.z);
+                // Two opposite corners are pointing up
+                if (xC1 == -xC2 && zC1 == -zC2) {
+                    if (xC1 == 1 && zC1 == -1 || xC2 == 1 && zC2 == -1) {
+                        algString += "U";
+                    }
+                } // Corners are on the same side
+                else {
+                    MyPoint currentPos3 = yellowCorner3.getCurrentSPosition();
+                    int[] orientation3 = yellowCorner3.getOrientation();
+                    double xC3 = Math.round(currentPos3.x);
+                    double zC3 = Math.round(currentPos3.z);
+                    MyPoint currentPos4 = yellowCorner4.getCurrentSPosition();
+                    int[] orientation4 = yellowCorner4.getOrientation();
+                    double xC4 = Math.round(currentPos4.x);
+                    double zC4 = Math.round(currentPos4.z);
+                    // Orientation of yellow are facing same side, put them at bottom, otherwise put them on left
+                    if (zC3 == -1 && zC4 == -1) {
+                        algString += (orientation3[0] == orientation4[0] || orientation3[1] == orientation4[1] || orientation3[2] == orientation4[2] || orientation3[3] == orientation4[3] || orientation3[4] == orientation4[4] || orientation3[5] == orientation4[5]) ? "UU" : "U'";
+                    } else if (xC3 == -1 && xC4 == -1) {
+                        algString += (orientation3[0] == orientation4[0] || orientation3[1] == orientation4[1] || orientation3[2] == orientation4[2] || orientation3[3] == orientation4[3] || orientation3[4] == orientation4[4] || orientation3[5] == orientation4[5]) ? "U'" : "";
+                    } else if (xC3 == 1 && xC4 == 1) {
+                        algString += (orientation3[0] == orientation4[0] || orientation3[1] == orientation4[1] || orientation3[2] == orientation4[2] || orientation3[3] == orientation4[3] || orientation3[4] == orientation4[4] || orientation3[5] == orientation4[5]) ? "U" : "UU";
+                    } else {
+                        algString += (orientation3[0] == orientation4[0] || orientation3[1] == orientation4[1] || orientation3[2] == orientation4[2] || orientation3[3] == orientation4[3] || orientation3[4] == orientation4[4] || orientation3[5] == orientation4[5]) ? "" : "U";
+                    }
+                }
+            }
+            algString += "RUR'URUUR' ";
+            algString = executeAlg(algString);
+        }
     }
 
     public void printInfo(Entity cube) {
@@ -386,14 +455,6 @@ public class Solver {
         return "";
     }
 
-    public void sleep() {
-        try {
-            Thread.sleep(200);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
     private int getAngle(double x, double y){
         int angle = 0;
         if (Math.round(x) == 0 && Math.round(y) == 1){
@@ -407,6 +468,26 @@ public class Solver {
     }
 
     private int getCrossPattern(Entity cube1, Entity cube2) {
+        // no cube provided (no cubes were pointing up other than the middle cube)
+        if (cube1 == null) {
+            return 1;
+        }
+        MyPoint currentPos1 = ((Entity) cube1).getCurrentSPosition();
+        double x1 = Math.round(currentPos1.x);
+        double z1 = Math.round(currentPos1.z);
+        MyPoint currentPos2 = ((Entity) cube2).getCurrentSPosition();
+        double x2 = Math.round(currentPos2.x);
+        double z2 = Math.round(currentPos2.z);
+        // Straight line pattern
+        if (x1 == x2 || z1 == z2) {
+            return 2;
+        } // "r" pattern
+        else {
+            return 3;
+        }
+    }
+
+    private int getCornerPattern(Entity cube1, Entity cube2, Entity cube3, Entity cube4) {
         // no cube provided (no cubes were pointing up other than the middle cube)
         if (cube1 == null) {
             return 1;

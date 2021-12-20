@@ -59,8 +59,7 @@ public class EntityManager {
         this.rubiksCube = new RubiksCube(size,0,0,0,dist, face_colours);
         this.entities.add(this.rubiksCube);
 
-//        this.solver = new Solver(this.rubiksCube, this.axis);
-        this.solver = new Solver(this.rubiksCube, this.axis, this);
+        this.solver = new Solver(this.rubiksCube, this.axis);
 
         this.entities.add(Entity.axis(5,2,0,0,0));
         this.entities.add(Entity.axis(5,1,0,0,0));
