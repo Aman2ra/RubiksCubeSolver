@@ -217,47 +217,64 @@ public class Solver {
                 int[] orientation = ((Entity) cube).getOrientation();
                 MyPoint originalPos = ((Entity) cube).getOriginalSPosition();
                 MyPoint currentPos = ((Entity) cube).getCurrentSPosition();
-                System.out.printf("%s\n" , colours);
-                System.out.printf("     Current Position: (%.2f, %.2f, %.2f)\n", currentPos.x, currentPos.y, currentPos.z);
                 // If cube is in the middle layer and has the wrong position or orientation, put it in the top layer
-                if ((currentPos.y > -0.5 && currentPos.y < 0.5) && (orientation[0] != 0 || orientation[1] != 1 || orientation[2] != 2 || orientation[3] != 3 || orientation[4] != 4 || orientation[5] != 5)) {
-                    if (currentPos.x > 0.5 && currentPos.z > 0.5) {
-                        algString = " R'U'R'U'R'URUR ";
-                    } else if (currentPos.x > 0.5 && currentPos.z < -0.5) {
-                        algString = " RURURU'R'U'R' ";
-                    } else if (currentPos.x < -0.5 && currentPos.z > 0.5) {
-                        algString = " L'U'L'U'L'ULUL ";
-                    } else if (currentPos.x < -0.5 && currentPos.z < -0.5) {
-                        algString = " LULULU'L'U'L' ";
+//                if (currentPos.y > -0.5 && currentPos.y < 0.5) {
+//                    // cube is in the wrong position
+//                    if (Math.abs(currentPos.x - originalPos.x) > 0.5 || Math.abs(currentPos.z - originalPos.z) > 0.5) {
+//                        if (currentPos.x > 0.5 && currentPos.z > 0.5) {
+//                            algString = " R'U'R'U'R'URUR ";
+//                        } else if (currentPos.x > 0.5 && currentPos.z < -0.5) {
+//                            algString = " RURURU'R'U'R' ";
+//                        } else if (currentPos.x < -0.5 && currentPos.z > 0.5) {
+//                            algString = " LULULU'L'U'L' ";
+//                        } else if (currentPos.x < -0.5 && currentPos.z < -0.5) {
+//                            algString = " L'U'L'U'L'ULUL ";
+//                        }
+//                    }
+//                    // cube in correct position but wrong orientation
+//                    else if (orientation[0] != 0 || orientation[1] != 1 || orientation[2] != 2 || orientation[3] != 3 || orientation[4] != 4 || orientation[5] != 5) {
+//                        if (currentPos.x > 0.5 && currentPos.z > 0.5) {
+//                            algString = " R'U'R'U'R'URURU'FUFUFU'F'U'F' ";
+//                        } else if (currentPos.x > 0.5 && currentPos.z < -0.5) {
+//                            algString = " RURURU'R'U'R'U'B'U'B'U'B'UBUB ";
+//                        } else if (currentPos.x < -0.5 && currentPos.z > 0.5) {
+//                            algString = " LULULU'L'U'L'UF'U'F'U'F'UFUF ";
+//                        } else if (currentPos.x < -0.5 && currentPos.z < -0.5) {
+//                            algString = " L'U'L'U'L'ULULU'BUBUBU'B'U'B' ";
+//                        }
+//                    }
+                    if (currentPos.y > -0.5 && currentPos.y < 0.5 && (orientation[0] != 0 || orientation[1] != 1 || orientation[2] != 2 || orientation[3] != 3 || orientation[4] != 4 || orientation[5] != 5)) {
+                        if (currentPos.x > 0.5 && currentPos.z > 0.5) {
+                            algString = " R'U'R'U'R'URUR ";
+                        } else if (currentPos.x > 0.5 && currentPos.z < -0.5) {
+                            algString = " RURURU'R'U'R' ";
+                        } else if (currentPos.x < -0.5 && currentPos.z > 0.5) {
+                            algString = " LULULU'L'U'L' ";
+                        } else if (currentPos.x < -0.5 && currentPos.z < -0.5) {
+                            algString = " L'U'L'U'L'ULUL ";
+                        }
+                        algString = executeAlg(algString);
                     }
-                    algString = executeAlg(algString);
-                }
                 // cube is in top layer
                 orientation = ((Entity) cube).getOrientation();
                 currentPos = ((Entity) cube).getCurrentSPosition();
                 if (currentPos.y >= 0.5) {
                     printInfo((Entity) cube);
-                    // Putting the cube over the correct position
-                    if (Math.round(currentPos.x) != Math.round(originalPos.x) && Math.round(currentPos.z) != Math.round(originalPos.x)) {
+                    // Cube on the opposite side
+                    if (Math.abs(currentPos.x - originalPos.x) > 0.5 && Math.abs(currentPos.z - originalPos.z) > 0.5) {
                         algString = " UU ";
                     }
                     algString = executeAlg(algString);
                     orientation = ((Entity) cube).getOrientation();
                     currentPos = ((Entity) cube).getCurrentSPosition();
                     System.out.println(orientation[0] != 0 && orientation[1] != 1 && orientation[2] != 2 && orientation[3] != 3 && orientation[4] != 4 && orientation[5] != 5);;
-
-                    if (orientation[0] != 0 && orientation[1] != 1 && orientation[2] != 2 && orientation[3] != 3 && orientation[4] != 4 && orientation[5] != 5) {
+                    if ((orientation[0] != 0) && (orientation[1] != 1) && (orientation[2] != 2) && (orientation[3] != 3) && (orientation[4] != 4) && (orientation[5] != 5)) {
                         double xC = Math.round(currentPos.x);
                         double zC = Math.round(currentPos.z);
                         double xO = Math.round(originalPos.x);
                         double zO = Math.round(originalPos.z);
-                        int angle1 = getAngle(xC,zC);
-                        int angle2 = getAngle(xO - xC,zO - zC);
-                        int angleDiff = angle2 - angle1;
-                        System.out.println(angle1);
-                        System.out.println(angle2);
-                        System.out.println(angleDiff);
-                        algString = (angleDiff == -90 || angleDiff == 270) ? " U " : " U' ";
+                        int angleDiff = getAngle(xO - xC,zO - zC) - getAngle(xC,zC);
+                        algString = (angleDiff == 90 || angleDiff == -270) ? " U " : " U' ";
                     }
                     algString = executeAlg(algString);
                     orientation = ((Entity) cube).getOrientation();
@@ -344,9 +361,6 @@ public class Solver {
             e.printStackTrace();
         }
     }
-
-    // (0,1) - (1,0)
-
 
     private int getAngle(double x, double y){
         int angle = 0;
