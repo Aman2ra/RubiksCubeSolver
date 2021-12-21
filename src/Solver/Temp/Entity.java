@@ -311,7 +311,7 @@ public class Entity implements IEntity {
     }
 
     public MyPoint getCurrentSPosition() {
-        return new MyPoint(this.centerPosition.xStandard/this.size, this.centerPosition.yStandard/this.size, this.centerPosition.zStandard/this.size);
+        return new MyPoint(Math.round(this.centerPosition.xStandard/this.size), Math.round(this.centerPosition.yStandard/this.size), Math.round(this.centerPosition.zStandard/this.size));
     }
 
     public void setCenter(double x, double y, double z){
@@ -331,7 +331,7 @@ public class Entity implements IEntity {
     }
 
     public MyPoint getOriginalSPosition(){
-        return new MyPoint(this.originalPosition.xStandard/this.size, this.originalPosition.yStandard/this.size, this.originalPosition.zStandard/this.size);
+        return new MyPoint(Math.round(this.originalPosition.xStandard/this.size), Math.round(this.originalPosition.yStandard/this.size), Math.round(this.originalPosition.zStandard/this.size));
     }
 
     public void setID(String id){

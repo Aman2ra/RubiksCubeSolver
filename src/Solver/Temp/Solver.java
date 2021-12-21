@@ -13,6 +13,8 @@ public class Solver {
         this.axis = axis;
     }
 
+    private int counter = 0;
+
     public void solveCube(){
         // Stage One: Bottom [White] Cross
         solveStageOne();
@@ -25,8 +27,16 @@ public class Solver {
         // Stage Five: Top [Yellow] Corner Orientation
         solveStageFive();
         // Stage Six:  Top [Yellow] Corner Position
+        solveStageSix();
         // Stage Seven: Top [Yellow] Edge Position
+//        if (this.counter%2 == 1) {
+//        solveStageSeven();
+//        }
         // Stage Eight: Top [Yellow] Fix Position
+//        if (this.counter%2 == 1) {
+//        solveStageEight();
+//        }
+        this.counter++;
     }
 
     public void solveStageOne(){
@@ -127,10 +137,10 @@ public class Solver {
                 orientation = ((Entity) cube).getOrientation();
                 currentPos = ((Entity) cube).getCurrentSPosition();
                 if (currentPos.y >= 0.5) {
-                    double xC = Math.round(currentPos.x);
-                    double zC = Math.round(currentPos.z);
-                    double xO = Math.round(originalPos.x);
-                    double zO = Math.round(originalPos.z);
+                    double xC = currentPos.x;
+                    double zC = currentPos.z;
+                    double xO = originalPos.x;
+                    double zO = originalPos.z;
                     // Putting the cube over the correct position
                     if (xC == -xO && zC == -zO) {
                         algString = " UU ";
@@ -225,10 +235,10 @@ public class Solver {
                     orientation = ((Entity) cube).getOrientation();
                     currentPos = ((Entity) cube).getCurrentSPosition();
                     if ((orientation[0] != 0) && (orientation[1] != 1) && (orientation[2] != 2) && (orientation[3] != 3) && (orientation[4] != 4) && (orientation[5] != 5)) {
-                        double xC = Math.round(currentPos.x);
-                        double zC = Math.round(currentPos.z);
-                        double xO = Math.round(originalPos.x);
-                        double zO = Math.round(originalPos.z);
+                        double xC = currentPos.x;
+                        double zC = currentPos.z;
+                        double xO = originalPos.x;
+                        double zO = originalPos.z;
                         int angleDiff = getAngle(xO - xC,zO - zC) - getAngle(xC,zC);
                         algString = (angleDiff == 90 || angleDiff == -270) ? " U " : " U' ";
                     }
@@ -283,14 +293,14 @@ public class Solver {
             algString = " FRUR'U'F'BULU'L'B' ";
         } else if (pattern == 2) {
             MyPoint currentPos1 = ((Entity) correctCube1).getCurrentSPosition();
-            algString = (Math.round(currentPos1.x) == 0) ? " UFRUR'U'F' " : " FRUR'U'F' ";
+            algString = currentPos1.x == 0 ? " UFRUR'U'F' " : " FRUR'U'F' ";
         } else if (pattern == 3) {
             MyPoint currentPos1 = ((Entity) correctCube1).getCurrentSPosition();
             MyPoint currentPos2 = ((Entity) correctCube2).getCurrentSPosition();
-            double x1 = Math.round(currentPos1.x);
-            double z1 = Math.round(currentPos1.z);
-            double x2 = Math.round(currentPos2.x);
-            double z2 = Math.round(currentPos2.z);
+            double x1 = currentPos1.x;
+            double z1 = currentPos1.z;
+            double x2 = currentPos2.x;
+            double z2 = currentPos2.z;
             if ((x1 == 0 && z1 == 1 && x2 == -1 && z2 == 0) || (x1 == -1 && z1 == 0 && x2 == 0 && z2 == 1)) {
                 algString = " U'";
             } else if ((x1 == -1 && z1 == 0 && x2 == 0 && z2 == -1) || (x1 == 0 && z1 == -1 && x2 == -1 && z2 == 0)){
@@ -309,34 +319,31 @@ public class Solver {
         System.out.println("Solver - Stage Five: Yellow Corners");
         while (true) {
             int pointingUp = 0;
-            Entity yellowCorner1 = null;
-            Entity yellowCorner2 = null;
-            Entity yellowCorner3 = null;
-            Entity yellowCorner4 = null;
+            Entity[] yellowCorners = {null, null, null, null};
             for (IEntity cube : this.rubiksCube.getTop()) {
                 String colours = ((Entity) cube).getColours();
                 int[] orientation = ((Entity) cube).getOrientation();
                 // save the corner cubes to recognise the pattern with
                 if (orientation[4] == 4 && colours.length() == 3) {
                     pointingUp += 1;
-                    if (yellowCorner1 == null) {
-                        yellowCorner1 = (Entity) cube;
-                    } else if (yellowCorner2 == null) {
-                        yellowCorner2 = (Entity) cube;
-                    } else if (yellowCorner3 == null) {
-                        yellowCorner3 = (Entity) cube;
+                    if (yellowCorners[0] == null) {
+                        yellowCorners[0] = (Entity) cube;
+                    } else if (yellowCorners[1] == null) {
+                        yellowCorners[1] = (Entity) cube;
+                    } else if (yellowCorners[2] == null) {
+                        yellowCorners[2] = (Entity) cube;
                     } else {
-                        yellowCorner4 = (Entity) cube;
+                        yellowCorners[3] = (Entity) cube;
                     }
                 } else if (colours.length() == 3) {
-                    if (yellowCorner4 == null) {
-                        yellowCorner4 = (Entity) cube;
-                    } else if (yellowCorner3 == null) {
-                        yellowCorner3 = (Entity) cube;
-                    } else if (yellowCorner2 == null) {
-                        yellowCorner2 = (Entity) cube;
+                    if (yellowCorners[3] == null) {
+                        yellowCorners[3] = (Entity) cube;
+                    } else if (yellowCorners[2] == null) {
+                        yellowCorners[2] = (Entity) cube;
+                    } else if (yellowCorners[1] == null) {
+                        yellowCorners[1] = (Entity) cube;
                     } else {
-                        yellowCorner1 = (Entity) cube;
+                        yellowCorners[0] = (Entity) cube;
                     }
                 }
             }
@@ -344,13 +351,16 @@ public class Solver {
             if (pointingUp == 4) {
                 System.out.println("Solver - Stage Five: Yellow Corners Finished");
                 return;
+            } else if (pointingUp == 3) {
+                System.out.println("Solver - Stage Five: ERROR CUBE UNSOLVABLE");
+                return;
             }
             // Best case, orient that cube to the bottom left then do the algorithm
             String algString = " ";
             if (pointingUp == 1) {
-                MyPoint currentPos = yellowCorner1.getCurrentSPosition();
-                double xC = Math.round(currentPos.x);
-                double zC = Math.round(currentPos.z);
+                MyPoint currentPos = yellowCorners[0].getCurrentSPosition();
+                double xC = currentPos.x;
+                double zC = currentPos.z;
                 if (xC == -1 && zC == -1) {
                     algString = "U'";
                 } else if (xC == 1 && zC == -1) {
@@ -360,12 +370,12 @@ public class Solver {
                 }
             }
             if (pointingUp == 2) {
-                MyPoint currentPos1 = yellowCorner1.getCurrentSPosition();
-                double xC1 = Math.round(currentPos1.x);
-                double zC1 = Math.round(currentPos1.z);
-                MyPoint currentPos2 = yellowCorner2.getCurrentSPosition();
-                double xC2 = Math.round(currentPos2.x);
-                double zC2 = Math.round(currentPos2.z);
+                MyPoint currentPos1 = yellowCorners[0].getCurrentSPosition();
+                double xC1 = currentPos1.x;
+                double zC1 = currentPos1.z;
+                MyPoint currentPos2 = yellowCorners[1].getCurrentSPosition();
+                double xC2 = currentPos2.x;
+                double zC2 = currentPos2.z;
                 // Two opposite corners are pointing up
                 if (xC1 == -xC2 && zC1 == -zC2) {
                     if (xC1 == 1 && zC1 == -1 || xC2 == 1 && zC2 == -1) {
@@ -373,14 +383,14 @@ public class Solver {
                     }
                 } // Corners are on the same side
                 else {
-                    MyPoint currentPos3 = yellowCorner3.getCurrentSPosition();
-                    int[] orientation3 = yellowCorner3.getOrientation();
-                    double xC3 = Math.round(currentPos3.x);
-                    double zC3 = Math.round(currentPos3.z);
-                    MyPoint currentPos4 = yellowCorner4.getCurrentSPosition();
-                    int[] orientation4 = yellowCorner4.getOrientation();
-                    double xC4 = Math.round(currentPos4.x);
-                    double zC4 = Math.round(currentPos4.z);
+                    MyPoint currentPos3 = yellowCorners[2].getCurrentSPosition();
+                    int[] orientation3 = yellowCorners[2].getOrientation();
+                    double xC3 = currentPos3.x;
+                    double zC3 = currentPos3.z;
+                    MyPoint currentPos4 = yellowCorners[3].getCurrentSPosition();
+                    int[] orientation4 = yellowCorners[3].getOrientation();
+                    double xC4 = currentPos4.x;
+                    double zC4 = currentPos4.z;
                     // Orientation of yellow are facing same side, put them at bottom, otherwise put them on left
                     if (zC3 == -1 && zC4 == -1) {
                         algString += (orientation3[0] == orientation4[0] || orientation3[1] == orientation4[1] || orientation3[2] == orientation4[2] || orientation3[3] == orientation4[3] || orientation3[4] == orientation4[4] || orientation3[5] == orientation4[5]) ? "UU" : "U'";
@@ -396,6 +406,91 @@ public class Solver {
             algString += "RUR'URUUR' ";
             algString = executeAlg(algString);
         }
+    }
+
+    public void solveStageSix() {
+        System.out.println("Solver - Stage Six:  Top Corner Position");
+        int pointingUp = 0;
+        Entity[] yellowCorners = {null, null, null, null};
+        for (IEntity cube : this.rubiksCube.getTop()) {
+            String colours = ((Entity) cube).getColours();
+            int[] orientation = ((Entity) cube).getOrientation();
+            // save the corner cubes to recognise the pattern with
+            if (orientation[4] == 4 && colours.length() == 3) {
+                pointingUp += 1;
+                if (yellowCorners[0] == null) {
+                    yellowCorners[0] = (Entity) cube;
+                } else if (yellowCorners[1] == null) {
+                    yellowCorners[1] = (Entity) cube;
+                } else if (yellowCorners[2] == null) {
+                    yellowCorners[2] = (Entity) cube;
+                } else {
+                    yellowCorners[3] = (Entity) cube;
+                }
+            }
+        }
+        while (true) {
+            Entity[] cubePair1 = {null, null};
+            Entity[] cubePair2 = {null, null};
+            int[] pair1Index = {-1, -1};
+            for (int i = 0 ; i < yellowCorners.length; i++) {
+                for (int j = 0 ; j < yellowCorners.length; j++) {
+                    int[] orientation1 = yellowCorners[i].getOrientation();
+                    int[] orientation2 = yellowCorners[j].getOrientation();
+                    MyPoint currentPos1 = yellowCorners[i].getCurrentSPosition();
+                    MyPoint currentPos2 = yellowCorners[j].getCurrentSPosition();
+                    // If theyre not the same cube and they are not diagonally opposite to each other
+                    if ((i != j) && (orientation1[0] == orientation2[0] || orientation1[1] == orientation2[1] || orientation1[2] == orientation2[2] || orientation1[3] == orientation2[3]) && !(currentPos1.x == currentPos2.z && currentPos2.x == currentPos1.z)) {
+                        // Pair one has not been assigned
+                        if ((cubePair1[0] == null) && (cubePair1[1] == null)) {
+                            cubePair1[0] = yellowCorners[i];
+                            cubePair1[1] = yellowCorners[j];
+                            pair1Index[0] = i;
+                            pair1Index[1] = j;
+                        } // Found another pair, check if that isnt already in pair 1
+                        else if ((i != pair1Index[0] && j != pair1Index[1]) && (j != pair1Index[0] && i != pair1Index[1])) {
+                            cubePair2[0] = yellowCorners[i];
+                            cubePair2[1] = yellowCorners[j];
+                        }
+                    }
+                }
+            }
+            // All corners are oriented properly (relative to each other)
+            if ((cubePair1[0] != null) && (cubePair1[1] != null) && (cubePair2[0] != null) && (cubePair2[1] != null)) {
+                System.out.println("Solver - Stage Six:  Top Corner Position Finished");
+                return;
+            }
+
+            String algString = " ";
+            if ((cubePair1[0] != null) && (cubePair1[1] != null)) {
+                MyPoint currentPos1 = cubePair1[0].getCurrentSPosition();
+                double xC1 = currentPos1.x;
+                double zC1 = currentPos1.z;
+                MyPoint currentPos2 = cubePair1[1].getCurrentSPosition();
+                double xC2 = currentPos2.x;
+                double zC2 = currentPos2.z;
+                if (xC1 == -1 && xC2 == -1) {
+                    algString += "U";
+                } else if (xC1 == 1 && xC2 == 1) {
+                    algString += "U'";
+                } else if (zC1 == 1 && zC2 == 1) {
+                    algString += "UU";
+                }
+            }
+
+            algString += "R'FR'BBRF'R'BBRR ";
+            algString = executeAlg(algString);
+        }
+    }
+
+    public void solveStageSeven() {
+        System.out.println("Solver - Stage Seven: Top Edge Position");
+        System.out.println("Solver - Stage Seven: Top Edge Position Finished");
+    }
+
+    public void solveStageEight() {
+        System.out.println("Solver - Stage Eight: Top Fix Position");
+        System.out.println("Solver - Stage Eight: Top Fix Position Finished");
     }
 
     public void printInfo(Entity cube) {
@@ -457,11 +552,11 @@ public class Solver {
 
     private int getAngle(double x, double y){
         int angle = 0;
-        if (Math.round(x) == 0 && Math.round(y) == 1){
+        if (x == 0 && y == 1){
             angle = 90;
-        } else if (Math.round(x) == -1 && Math.round(y) == 0){
+        } else if (x == -1 && y == 0){
             angle = 180;
-        } else if (Math.round(x) == 0 && Math.round(y) == -1){
+        } else if (x == 0 && y == -1){
             angle = 270;
         }
         return angle;
@@ -473,11 +568,11 @@ public class Solver {
             return 1;
         }
         MyPoint currentPos1 = ((Entity) cube1).getCurrentSPosition();
-        double x1 = Math.round(currentPos1.x);
-        double z1 = Math.round(currentPos1.z);
+        double x1 = currentPos1.x;
+        double z1 = currentPos1.z;
         MyPoint currentPos2 = ((Entity) cube2).getCurrentSPosition();
-        double x2 = Math.round(currentPos2.x);
-        double z2 = Math.round(currentPos2.z);
+        double x2 = currentPos2.x;
+        double z2 = currentPos2.z;
         // Straight line pattern
         if (x1 == x2 || z1 == z2) {
             return 2;
@@ -493,11 +588,11 @@ public class Solver {
             return 1;
         }
         MyPoint currentPos1 = ((Entity) cube1).getCurrentSPosition();
-        double x1 = Math.round(currentPos1.x);
-        double z1 = Math.round(currentPos1.z);
+        double x1 = currentPos1.x;
+        double z1 = currentPos1.z;
         MyPoint currentPos2 = ((Entity) cube2).getCurrentSPosition();
-        double x2 = Math.round(currentPos2.x);
-        double z2 = Math.round(currentPos2.z);
+        double x2 = currentPos2.x;
+        double z2 = currentPos2.z;
         // Straight line pattern
         if (x1 == x2 || z1 == z2) {
             return 2;
