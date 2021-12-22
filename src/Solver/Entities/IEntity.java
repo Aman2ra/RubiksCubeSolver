@@ -1,4 +1,4 @@
-package Solver.Temp;
+package Solver.Entities;
 
 import Solver.BasicBuilders.Axis;
 import Solver.BasicBuilders.MyPoint;
@@ -21,4 +21,6 @@ public interface IEntity {
     void printCoord();
 
     MyPoint getCenter();
+
+    void setVisible(boolean visible);
 }

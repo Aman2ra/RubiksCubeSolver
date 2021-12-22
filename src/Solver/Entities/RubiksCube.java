@@ -1,9 +1,8 @@
-package Solver.Temp;
+package Solver.Entities;
 
 import Solver.BasicBuilders.Axis;
 import Solver.BasicBuilders.MyPoint;
-import Solver.BasicBuilders.PointConverter;
-import Solver.BasicBuilders.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -19,10 +18,13 @@ public class RubiksCube implements IEntity{
     private List<IEntity> top = new ArrayList<IEntity>();
     private List<IEntity> bottom = new ArrayList<IEntity>();
     private double rubiksCubeSize;
+    private double distance;
     private MyPoint center;
+    private boolean visible = true;
 
     public RubiksCube(double size, double centerX, double centerY, double centerZ, double distance) {
         this.rubiksCubeSize = size;
+        this.distance = distance;
         this.center = new MyPoint(centerX,centerY,centerZ);
         for (int x = -1; x <= 1; x++) {
             for (int y = -1; y <= 1; y++) {
@@ -113,8 +115,10 @@ public class RubiksCube implements IEntity{
 
     @Override
     public void render(Graphics g) {
-        for (IEntity cube : this.cubes){
-            cube.render(g);
+        if (this.visible) {
+            for (IEntity cube : this.cubes) {
+                cube.render(g);
+            }
         }
     }
 
@@ -165,6 +169,13 @@ public class RubiksCube implements IEntity{
     @Override
     public MyPoint getCenter() {
         return new MyPoint(this.center.x, this.center.y, this.center.z);
+    }
+
+    public void setVisible(boolean visible) {
+        for (IEntity entity : this.cubes) {
+            ((Entity) entity).setVisible(visible);
+        }
+        this.visible = visible;
     }
 
     public void sortEntities() {

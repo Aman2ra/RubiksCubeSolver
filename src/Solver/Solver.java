@@ -1,38 +1,223 @@
-package Solver.Temp;
+package Solver;
 
-import Solver.BasicBuilders.Axis;
-import Solver.BasicBuilders.MyPoint;
+import Solver.BasicBuilders.*;
+import Solver.Entities.Entity;
+import Solver.Entities.IEntity;
+import Solver.Entities.RubiksCube;
+
 
 public class Solver {
-    private RubiksCube rubiksCube;
+    private RubiksCube testRubiksCube;
     private Axis axis;
-    private double rSpeed = 90.0;
+    private double testRSpeed = 90.0;
+    private String currentAlg;
+    private int algIndex;
+    private int animationTime;
+    private int currentAnimationTime;
+    private boolean executingAlg;
+    private boolean animationLocked;
+    private int[] currentMove;
+    private int stage;
+    private String message;
 
-    public Solver(RubiksCube cube, Axis axis) {
-        this.rubiksCube = cube;
+    public Solver(RubiksCube hiddenCube, Axis axis, int animationTime) {
+        this.testRubiksCube = hiddenCube;
         this.axis = axis;
+        this.animationTime = animationTime;
+        this.currentAnimationTime = 0;
+        algIndex = 0;
+        currentAlg = "";
+        stage = 0;
+        executingAlg = false;
+        animationLocked = false;
+        currentMove = new int[2];
     }
 
     public void solveCube() {
-        // Stage One: Bottom [White] Cross
-        solveStageOne();
-        // Stage Two: Bottom [White] Corners
-        solveStageTwo();
-        // Stage Three: Middle Layer Edges
-        solveStageThree();
-        // Stage Four: Top [Yellow] Cross (Edge Orientation)
-        solveStageFour();
-        // Stage Five: Top [Yellow] Corner Orientation
-        solveStageFive();
-        // Stage Six:  Top [Yellow] Corner Position
-        solveStageSix();
-        // Stage Seven: Top [Yellow] Edge Position
-        solveStageSeven();
+        int success = 0;
+        switch (this.stage){
+            case 1:
+                // Stage One: Bottom [White] Cross
+                System.out.println("Solver - Stage One: Bottom Cross");
+                success = solveStageOne();
+                if (success == 1) {
+                    this.message = "Solver - Stage One: Bottom Cross Finished";
+                }
+                break;
+            case 2:
+                // Stage Two: Bottom [White] Corners
+                System.out.println("Solver - Stage Two: Bottom Corners");
+                success = solveStageTwo();
+                if (success == 1) {
+                    this.message = "Solver - Stage Two: Bottom Corners Finished";
+                }
+                break;
+            case 3:
+                // Stage Three: Middle Layer Edges
+                System.out.println("Solver - Stage Three: Middle Layer");
+                success = solveStageThree();
+                if (success == 1) {
+                    this.message = "Solver - Stage Three: Middle Layer Finished";
+                }
+                break;
+            case 4:
+                // Stage Four: Top [Yellow] Cross (Edge Orientation)
+                System.out.println("Solver - Stage Four: Yellow Cross");
+                success = solveStageFour();
+                if (success == 1) {
+                    this.message = "Solver - Stage Four: Yellow Cross Finished";
+                }
+                break;
+            case 5:
+                // Stage Five: Top [Yellow] Corner Orientation
+                System.out.println("Solver - Stage Five: Yellow Corners");
+                success = solveStageFive();
+                if (success == 1) {
+                    this.message = "Solver - Stage Five: Yellow Corners Finished";
+                } else if (success == -1) {
+                    this.currentAlg = "";
+                    this.currentMove[0] = -1;
+                    this.currentMove[1] = -1;
+                    System.out.println("Solver - Stage Five: ERROR CUBE UNSOLVABLE");
+                }
+                break;
+            case 6:
+                // Stage Six:  Top [Yellow] Corner Position
+                System.out.println("Solver - Stage Six: Top Corner Position");
+                success = solveStageSix();
+                if (success == 1) {
+                    this.message = "Solver - Stage Six: Top Corner Position Finished";
+                }
+                break;
+            case 7:
+                // Stage Seven: Top [Yellow] Edge Position
+                System.out.println("Solver - Stage Seven: Top Edge Position");
+                success = solveStageSeven();
+                if (success == 1) {
+                    this.message = "Solver - Stage Seven: Top Edge Position Finished";
+                }
+                break;
+            default:
+                this.currentMove[0] = -1;
+                this.currentMove[1] = -1;
+                break;
+        }
+        return;
     }
 
-    public void solveStageOne() {
-        System.out.println("Solver - Stage One: Bottom Cross");
-        for (IEntity cube : this.rubiksCube.getAll()) {
+    public int[] getNextMove() {
+        if (!this.executingAlg) {
+            System.out.println("--------------------------------------------------------");
+            this.stage++;
+            System.out.printf("getNextMove: Solving next stage: %d\n", this.stage);
+            solveCube();
+            this.executingAlg = true;
+            this.animationLocked = false;
+            this.currentAnimationTime = 0;
+        }
+        if (this.executingAlg) {
+            executeAlgMain();
+            this.animationLocked = true;
+            this.currentAnimationTime++;
+//            System.out.printf("        getNextMove: Animation %d/%d\n", this.currentAnimationTime, this.animationTime);
+        }
+        if (this.currentAnimationTime % this.animationTime == 0) {
+            System.out.printf("        getNextMove: Executed move: %d %d\n", this.currentMove[0], this.currentMove[1]);
+            System.out.printf("        getNextMove: ");
+            if (this.algIndex != 0) {
+                for (int i = 0; i < this.currentAlg.length(); i++) {
+                    if (i == this.algIndex) {
+                        System.out.printf("|");
+                    }
+                    System.out.printf("%c", this.currentAlg.charAt(i));
+                }
+            }
+            System.out.printf("\n");
+            this.animationLocked = false;
+            this.currentAnimationTime = 0;
+            if (this.currentMove[0] == -1 && this.currentMove[1] == -1){
+                algIndex = 0;
+                currentAlg = "";
+                stage = 0;
+                executingAlg = false;
+                animationLocked = false;
+            }
+        }
+        return this.currentMove;
+    }
+
+    public void executeAlgMain() {
+        if (!this.animationLocked) {
+            Character curr = 'N';
+            if (!this.currentAlg.equals("") && this.algIndex < this.currentAlg.length()) {
+                curr = this.currentAlg.charAt(this.algIndex);
+            }
+            int dir = 1;
+            if (this.algIndex + 1 < this.currentAlg.length() && ((Character) this.currentAlg.charAt(algIndex + 1)).equals('\'')) {
+                dir = 0;
+                this.algIndex++;
+            }
+            this.algIndex++;
+            if (curr.equals('L')) {
+                this.currentMove[0] = 1;
+                this.currentMove[1] = dir;
+            } else if (curr.equals('R')) {
+                this.currentMove[0] = 2;
+                this.currentMove[1] = dir;
+            } else if (curr.equals('F')) {
+                this.currentMove[0] = 3;
+                this.currentMove[1] = dir;
+            } else if (curr.equals('B')) {
+                this.currentMove[0] = 4;
+                this.currentMove[1] = dir;
+            } else if (curr.equals('U')) {
+                this.currentMove[0] = 5;
+                this.currentMove[1] = dir;
+            } else if (curr.equals('D')) {
+                this.currentMove[0] = 6;
+                this.currentMove[1] = dir;
+            } else if (this.currentMove[0] != -1 && this.currentMove[1] != -1){
+                this.currentAlg = "";
+                this.algIndex = 0;
+                this.executingAlg = false;
+                this.currentMove[0] = -2;
+                this.currentMove[1] = -2;
+                System.out.println(this.message);
+            }
+        }
+        return;
+    }
+
+    public String executeAlgTest(String algString) {
+        this.currentAlg += algString;
+        for (int i = 0; i < algString.length(); i++) {
+            Character curr = algString.charAt(i);
+            if (curr.equals('\'')){
+                continue;
+            }
+            boolean dir = true;
+            if (i+1 < algString.length() && ((Character) algString.charAt(i+1)).equals('\'')) {
+                dir = false;
+            }
+            if (curr.equals('F')) {
+                this.testRubiksCube.forward(this.axis, dir, testRSpeed);
+            } else if (curr.equals('B')) {
+                this.testRubiksCube.backward(this.axis, dir, testRSpeed);
+            } else if (curr.equals('L')) {
+                this.testRubiksCube.left(this.axis, dir, testRSpeed);
+            } else if (curr.equals('R')) {
+                this.testRubiksCube.right(this.axis, dir, testRSpeed);
+            } else if (curr.equals('U')) {
+                this.testRubiksCube.up(this.axis, dir, testRSpeed);
+            } else if (curr.equals('D')) {
+                this.testRubiksCube.down(this.axis, dir, testRSpeed);
+            }
+        }
+        return "";
+    }
+
+    public int solveStageOne() {
+        for (IEntity cube : this.testRubiksCube.getAll()) {
             String algString = "";
             String colours = ((Entity) cube).getColours();
             if (colours.contains("W") && colours.length() == 2) {
@@ -42,30 +227,30 @@ public class Solver {
                 // If cube is in the middle layer, put it in the top layer
                 if (currentPos.y > -0.5 && currentPos.y < 0.5) {
                     if (currentPos.x > 0.5 && currentPos.z > 0.5) {
-                        algString = " RUR' ";
+                        algString = "RUR'";
                     } else if (currentPos.x > 0.5 && currentPos.z < -0.5) {
-                        algString = " R'UR ";
+                        algString = "R'UR";
                     } else if (currentPos.x < -0.5 && currentPos.z > 0.5) {
-                        algString = " L'UL ";
+                        algString = "L'UL";
                     } else if (currentPos.x < -0.5 && currentPos.z < -0.5) {
-                        algString = " LUL' ";
+                        algString = "LUL'";
                     }
-                    algString = executeAlg(algString);
+                    algString = executeAlgTest(algString);
                 }
                 // If cube is in bottom layer but wrong position
                 orientation = ((Entity) cube).getOrientation();
                 currentPos = ((Entity) cube).getCurrentSPosition();
                 if (currentPos.y < -0.5 && (Math.abs(currentPos.x - originalPos.x) > 0.5 || Math.abs(currentPos.z - originalPos.z) > 0.5 || orientation[5] != 5)) {
                     if (currentPos.x > 0.5) {
-                        algString = " RR ";
+                        algString = "RR";
                     } else if (currentPos.x < -0.5) {
-                        algString = " LL ";
+                        algString = "LL";
                     } else if (currentPos.z > 0.5) {
-                        algString = " FF ";
+                        algString = "FF";
                     } else if (currentPos.z < -0.5) {
-                        algString = " BB ";
+                        algString = "BB";
                     }
-                    algString = executeAlg(algString);
+                    algString = executeAlgTest(algString);
                 }
                 // cube is in top layer
                 orientation = ((Entity) cube).getOrientation();
@@ -74,36 +259,34 @@ public class Solver {
                     // Putting the cube over the correct position
                     int angleDif = getAngle(currentPos.x, currentPos.z) - getAngle(originalPos.x, originalPos.z);
                     if (angleDif == 180 || angleDif == -180) {
-                        algString = " UU ";
+                        algString = "UU";
                     } else if (angleDif == 90 || angleDif == -270) {
-                        algString = " U' ";
+                        algString = "U'";
                     } else if (angleDif == 270 || angleDif == -90) {
-                        algString = " U ";
+                        algString = "U";
                     }
-                    algString = executeAlg(algString);
+                    algString = executeAlgTest(algString);
                     orientation = ((Entity) cube).getOrientation();
                     currentPos = ((Entity) cube).getCurrentSPosition();
                     // Cube is in correct position in top layer, Algorithms based which way the side with bottom colour is facing
                     if (originalPos.x > 0.5) {
-                        algString = orientation[5] == 4 ? " RR " : " UFR'F' ";
+                        algString = orientation[5] == 4 ? "RR" : "UFR'F'";
                     } else if (originalPos.x < -0.5) {
-                        algString = orientation[5] == 4 ? " LL " : " UBL'B' ";
+                        algString = orientation[5] == 4 ? "LL" : "UBL'B'";
                     } else if (originalPos.z > 0.5) {
-                        algString = orientation[5] == 4 ? " FF " : " ULF'L' ";
+                        algString = orientation[5] == 4 ? "FF" : "ULF'L'";
                     } else if (originalPos.z < -0.5) {
-                        algString = orientation[5] == 4 ? " BB " : " URB'R' ";
+                        algString = orientation[5] == 4 ? "BB" : "URB'R'";
                     }
-                    algString = executeAlg(algString);
+                    algString = executeAlgTest(algString);
                 }
             }
         }
-        System.out.println("Solver - Stage One: Bottom Cross Finished");
-        return;
+        return 1;
     }
 
-    public void solveStageTwo() {
-        System.out.println("Solver - Stage Two: Bottom Corners");
-        for (IEntity cube : this.rubiksCube.getAll()) {
+    public int solveStageTwo() {
+        for (IEntity cube : this.testRubiksCube.getAll()) {
             String algString = "";
             String colours = ((Entity) cube).getColours();
             if (colours.contains("W") && colours.length() == 3) {
@@ -114,15 +297,15 @@ public class Solver {
                 if (currentPos.y < -0.5 && (Math.abs(currentPos.x - originalPos.x) > 0.5 || Math.abs(currentPos.z - originalPos.z) > 0.5 ||
                         (orientation[0] != 0 || orientation[1] != 1 || orientation[2] != 2 || orientation[3] != 3 || orientation[4] != 4 || orientation[5] != 5))) {
                     if (currentPos.x > 0.5 && currentPos.z > 0.5) {
-                        algString = " RUR' ";
+                        algString = "RUR'";
                     } else if (currentPos.x > 0.5 && currentPos.z < -0.5) {
-                        algString = " R'U'R ";
+                        algString = "R'U'R";
                     } else if (currentPos.x < -0.5 && currentPos.z > 0.5) {
-                        algString = " L'U'L ";
+                        algString = "L'U'L";
                     } else if (currentPos.x < -0.5 && currentPos.z < -0.5) {
-                        algString = " LUL' ";
+                        algString = "LUL'";
                     }
-                    algString = executeAlg(algString);
+                    algString = executeAlgTest(algString);
                 }
                 // If cube is in top layer but wrong position
                 orientation = ((Entity) cube).getOrientation();
@@ -134,67 +317,65 @@ public class Solver {
                     double zO = originalPos.z;
                     // Putting the cube over the correct position
                     if (xC == -xO && zC == -zO) {
-                        algString = " UU ";
+                        algString = "UU";
                     } else if (!(xC == xO && zC == zO)) {
                         if (xC == 1 && zC == 1) {
-                            algString = (xO == -1 && zO == 1) ? " U " : " U' ";
+                            algString = (xO == -1 && zO == 1) ? "U" : "U'";
                         } else if (xC == 1 && zC == -1) {
-                            algString = (xO == 1 && zO == 1) ? " U " : " U' ";
+                            algString = (xO == 1 && zO == 1) ? "U" : "U'";
                         } else if (xC == -1 && zC == -1) {
-                            algString = (xO == 1 && zO == -1) ? " U " : " U' ";
+                            algString = (xO == 1 && zO == -1) ? "U" : "U'";
                         } else if (xC == -1 && zC == 1) {
-                            algString = (xO == -1 && zO == -1) ? " U " : " U' ";
+                            algString = (xO == -1 && zO == -1) ? "U" : "U'";
                         }
                     }
-                    algString = executeAlg(algString);
+                    algString = executeAlgTest(algString);
                     orientation = ((Entity) cube).getOrientation();
                     currentPos = ((Entity) cube).getCurrentSPosition();
 
                     // Cube is in correct position in top layer, Algorithms based which way the side with bottom colour and others are facing
                     if (currentPos.x > 0.5 && currentPos.z > 0.5) {
                         if (orientation[5] == 0) {
-                            algString = " R'FRF' ";
+                            algString = "R'FRF'";
                         } else if (orientation[5] == 4) {
-                            algString = " RUUR'U'FR'F'R ";
+                            algString = "RUUR'U'FR'F'R";
                         } else if (orientation[5] == 3) {
-                            algString = " FR'F'R ";
+                            algString = "FR'F'R";
                         }
                     } else if (currentPos.x > 0.5 && currentPos.z < -0.5) {
                         if (orientation[5] == 1) {
-                            algString = " RB'R'B ";
+                            algString = "RB'R'B";
                         } else if (orientation[5] == 4) {
-                            algString = " R'UURUB'RBR' ";
+                            algString = "R'UURUB'RBR'";
                         } else if (orientation[5] == 3) {
-                            algString = " B'RBR' ";
+                            algString = "B'RBR'";
                         }
                     } else if (currentPos.x < -0.5 && currentPos.z > 0.5) {
                         if (orientation[5] == 0) {
-                            algString = " LF'L'F ";
+                            algString = "LF'L'F";
                         } else if (orientation[5] == 4) {
-                            algString = " L'UULUF'LFL' ";
+                            algString = "L'UULUF'LFL'";
                         } else if (orientation[5] == 2) {
-                            algString = " F'LFL' ";
+                            algString = "F'LFL'";
                         }
                     } else if (currentPos.x < -0.5 && currentPos.z < -0.5) {
                         if (orientation[5] == 1) {
-                            algString = " L'BLB' ";
+                            algString = "L'BLB'";
                         } else if (orientation[5] == 4) {
-                            algString = " LUUL'U'BL'B'L ";
+                            algString = "LUUL'U'BL'B'L";
                         } else if (orientation[5] == 2) {
-                            algString = " BL'B'L ";
+                            algString = "BL'B'L";
                         }
                     }
-                    algString = executeAlg(algString);
+                    algString = executeAlgTest(algString);
                 }
             }
         }
-        System.out.println("Solver - Stage Two: Bottom Corners Finished");
-        return;
+        return 1;
     }
 
-    public void solveStageThree() {
-        System.out.println("Solver - Stage Three: Middle Layer");
-        for (IEntity cube : this.rubiksCube.getAll()) {
+    public int solveStageThree() {
+        for (IEntity cube : this.testRubiksCube.getAll()) {
             String algString = "";
             String colours = ((Entity) cube).getColours();
             if (!(colours.contains("W") || colours.contains("Y")) && colours.length() == 2) {
@@ -204,15 +385,15 @@ public class Solver {
                 // If cube is in the middle layer and has the wrong position or orientation, put it in the top layer
                 if (currentPos.y > -0.5 && currentPos.y < 0.5 && (orientation[0] != 0 || orientation[1] != 1 || orientation[2] != 2 || orientation[3] != 3 || orientation[4] != 4 || orientation[5] != 5)) {
                     if (currentPos.x > 0.5 && currentPos.z > 0.5) {
-                        algString = " R'U'R'U'R'URUR ";
+                        algString = "R'U'R'U'R'URUR";
                     } else if (currentPos.x > 0.5 && currentPos.z < -0.5) {
-                        algString = " RURURU'R'U'R' ";
+                        algString = "RURURU'R'U'R'";
                     } else if (currentPos.x < -0.5 && currentPos.z > 0.5) {
-                        algString = " LULULU'L'U'L' ";
+                        algString = "LULULU'L'U'L'";
                     } else if (currentPos.x < -0.5 && currentPos.z < -0.5) {
-                        algString = " L'U'L'U'L'ULUL ";
+                        algString = "L'U'L'U'L'ULUL";
                     }
-                    algString = executeAlg(algString);
+                    algString = executeAlgTest(algString);
                 }
                 // cube is in top layer
                 orientation = ((Entity) cube).getOrientation();
@@ -220,9 +401,9 @@ public class Solver {
                 if (currentPos.y >= 0.5) {
                     // Cube on the opposite side
                     if (Math.abs(currentPos.x - originalPos.x) > 0.5 && Math.abs(currentPos.z - originalPos.z) > 0.5) {
-                        algString = " UU ";
+                        algString = "UU";
                     }
-                    algString = executeAlg(algString);
+                    algString = executeAlgTest(algString);
                     orientation = ((Entity) cube).getOrientation();
                     currentPos = ((Entity) cube).getCurrentSPosition();
                     if ((orientation[0] != 0) && (orientation[1] != 1) && (orientation[2] != 2) && (orientation[3] != 3) && (orientation[4] != 4) && (orientation[5] != 5)) {
@@ -231,35 +412,33 @@ public class Solver {
                         double xO = originalPos.x;
                         double zO = originalPos.z;
                         int angleDiff = getAngle(xO - xC, zO - zC) - getAngle(xC, zC);
-                        algString = (angleDiff == 90 || angleDiff == -270) ? " U " : " U' ";
+                        algString = (angleDiff == 90 || angleDiff == -270) ? "U" : "U'";
                     }
-                    algString = executeAlg(algString);
+                    algString = executeAlgTest(algString);
                     orientation = ((Entity) cube).getOrientation();
                     currentPos = ((Entity) cube).getCurrentSPosition();
                     // Cube is in correct position in top layer, Algorithms based on which face is pointing up
                     if (currentPos.x > 0.5) {
-                        algString = orientation[1] == 4 ? " RURURU'R'U'R' " : " R'U'R'U'R'URUR ";
+                        algString = orientation[1] == 4 ? "RURURU'R'U'R'" : "R'U'R'U'R'URUR";
                     } else if (currentPos.x < -0.5) {
-                        algString = orientation[1] == 4 ? " L'U'L'U'L'ULUL " : " LULULU'L'U'L' ";
+                        algString = orientation[1] == 4 ? "L'U'L'U'L'ULUL" : "LULULU'L'U'L'";
                     } else if (currentPos.z > 0.5) {
-                        algString = orientation[2] == 4 ? " F'U'F'U'F'UFUF " : " FUFUFU'F'U'F' ";
+                        algString = orientation[2] == 4 ? "F'U'F'U'F'UFUF" : "FUFUFU'F'U'F'";
                     } else if (currentPos.z < -0.5) {
-                        algString = orientation[2] == 4 ? " BUBUBU'B'U'B' " : " B'U'B'U'B'UBUB ";
+                        algString = orientation[2] == 4 ? "BUBUBU'B'U'B'" : "B'U'B'U'B'UBUB";
                     }
-                    algString = executeAlg(algString);
+                    algString = executeAlgTest(algString);
                 }
             }
         }
-        System.out.println("Solver - Stage Three: Middle Layer Finished");
-        return;
+        return 1;
     }
 
-    public void solveStageFour() {
-        System.out.println("Solver - Stage Four: Yellow Cross");
+    public int solveStageFour() {
         int pointingUp = 0;
         Entity correctCube1 = null;
         Entity correctCube2 = null;
-        for (IEntity cube : this.rubiksCube.getTop()) {
+        for (IEntity cube : this.testRubiksCube.getTop()) {
             String colours = ((Entity) cube).getColours();
             int[] orientation = ((Entity) cube).getOrientation();
             MyPoint currentPos = ((Entity) cube).getCurrentSPosition();
@@ -275,16 +454,16 @@ public class Solver {
         }
         // if all cubes are already pointing up, no need to do any algorithms
         if (pointingUp == 4) {
-            return;
+            return 1;
         }
         int pattern = getCrossPattern(correctCube1, correctCube2);
         String algString = "";
         // Algorithms based on the patterns
         if (pattern == 1) {
-            algString = " FRUR'U'F'BULU'L'B' ";
+            algString = "FRUR'U'F'BULU'L'B'";
         } else if (pattern == 2) {
             MyPoint currentPos1 = ((Entity) correctCube1).getCurrentSPosition();
-            algString = currentPos1.x == 0 ? " UFRUR'U'F' " : " FRUR'U'F' ";
+            algString = currentPos1.x == 0 ? "UFRUR'U'F'" : "FRUR'U'F'";
         } else if (pattern == 3) {
             MyPoint currentPos1 = ((Entity) correctCube1).getCurrentSPosition();
             MyPoint currentPos2 = ((Entity) correctCube2).getCurrentSPosition();
@@ -293,26 +472,24 @@ public class Solver {
             double x2 = currentPos2.x;
             double z2 = currentPos2.z;
             if ((x1 == 0 && z1 == 1 && x2 == -1 && z2 == 0) || (x1 == -1 && z1 == 0 && x2 == 0 && z2 == 1)) {
-                algString = " U'";
+                algString = "U'";
             } else if ((x1 == -1 && z1 == 0 && x2 == 0 && z2 == -1) || (x1 == 0 && z1 == -1 && x2 == -1 && z2 == 0)) {
-                algString = " UU";
+                algString = "UU";
             } else if ((x1 == 0 && z1 == -1 && x2 == 1 && z2 == 0) || (x1 == 1 && z1 == 0 && x2 == 0 && z2 == -1)) {
-                algString = " U";
+                algString = "U";
             }
-            algString += "BULU'L'B' ";
+            algString += "BULU'L'B'";
         }
-        algString = executeAlg(algString);
-        System.out.println("Solver - Stage Four: Yellow Cross Finished");
-        return;
+        algString = executeAlgTest(algString);
+        return 1;
     }
 
-    public void solveStageFive() {
-        System.out.println("Solver - Stage Five: Yellow Corners");
+    public int solveStageFive() {
         while (true) {
             int pointingUp = 0;
             int pointingSide = 0;
             Entity[] yellowCorners = new Entity[4];
-            for (IEntity cube : this.rubiksCube.getTop()) {
+            for (IEntity cube : this.testRubiksCube.getTop()) {
                 String colours = ((Entity) cube).getColours();
                 int[] orientation = ((Entity) cube).getOrientation();
                 // save the corner cubes to recognise the pattern with
@@ -326,14 +503,12 @@ public class Solver {
             }
             // All corners already pointing up
             if (pointingUp == 4) {
-                System.out.println("Solver - Stage Five: Yellow Corners Finished");
-                return;
+                return 1;
             } else if (pointingUp == 3) {
-                System.out.println("Solver - Stage Five: ERROR CUBE UNSOLVABLE");
-                return;
+                return -1;
             }
             // Best case, orient that cube to the bottom left then do the algorithm
-            String algString = " ";
+            String algString = "";
             if (pointingUp == 1) {
                 MyPoint currentPos = yellowCorners[0].getCurrentSPosition();
                 double xC = currentPos.x;
@@ -380,16 +555,15 @@ public class Solver {
                     }
                 }
             }
-            algString += "RUR'URUUR' ";
-            algString = executeAlg(algString);
+            algString += "RUR'URUUR'";
+            algString = executeAlgTest(algString);
         }
     }
 
-    public void solveStageSix() {
-        System.out.println("Solver - Stage Six: Top Corner Position");
+    public int solveStageSix() {
         Entity[] yellowCorners = new Entity[4];
         int found = 0;
-        for (IEntity cube : this.rubiksCube.getTop()) {
+        for (IEntity cube : this.testRubiksCube.getTop()) {
             String colours = ((Entity) cube).getColours();
             // save the corner cubes to recognise the pattern with
             if (colours.length() == 3) {
@@ -425,11 +599,10 @@ public class Solver {
             }
             // All corners are oriented properly (relative to each other)
             if ((cubePair1[0] != null) && (cubePair1[1] != null) && (cubePair2[0] != null) && (cubePair2[1] != null)) {
-                System.out.println("Solver - Stage Six: Top Corner Position Finished");
-                return;
+                return 1;
             }
 
-            String algString = " ";
+            String algString = "";
             if ((cubePair1[0] != null) && (cubePair1[1] != null)) {
                 MyPoint currentPos1 = cubePair1[0].getCurrentSPosition();
                 double xC1 = currentPos1.x;
@@ -446,15 +619,14 @@ public class Solver {
                 }
             }
 
-            algString += "R'FR'BBRF'R'BBRR ";
-            algString = executeAlg(algString);
+            algString += "R'FR'BBRF'R'BBRR";
+            algString = executeAlgTest(algString);
         }
     }
 
-    public void solveStageSeven() {
-        System.out.println("Solver - Stage Seven: Top Edge Position");
+    public int solveStageSeven() {
         Entity[][] edgePairs = new Entity[4][3];
-        for (IEntity cube : this.rubiksCube.getTop()) {
+        for (IEntity cube : this.testRubiksCube.getTop()) {
             String colours = ((Entity) cube).getColours();
             MyPoint pos = ((Entity) cube).getCurrentSPosition();
             // save the corner cubes to recognise the pattern with
@@ -499,33 +671,37 @@ public class Solver {
                         ((corner1Orientation[3] == edgeOrientation[3]) && (corner2Orientation[3] == edgeOrientation[3]))) {
                     MyPoint edgePosition = edge[1].getCurrentSPosition();
                     if (edgePosition.x == 1 && edgePosition.z == 0) {
-                        algString = " U'";
+                        algString = "U'";
                     } else if (edgePosition.x == 0 && edgePosition.z == 1) {
-                        algString = " UU";
+                        algString = "UU";
                     } else if (edgePosition.x == -1 && edgePosition.z == 0) {
-                        algString = " U";
+                        algString = "U";
                     }
                     correctOrientations++;
                 }
             }
+            algString = executeAlgTest(algString);
             // All edges are alligned
             if (correctOrientations == 4) {
                 MyPoint currentPos = edgePairs[0][1].getCurrentSPosition();
                 MyPoint originalPos = edgePairs[0][1].getOriginalSPosition();
                 int angleDif = getAngle(currentPos.x, currentPos.z) - getAngle(originalPos.x, originalPos.z);
                 if (angleDif == 180 || angleDif == -180) {
-                    algString = " UU ";
+                    System.out.println("UU");
+                    algString = "UU";
                 } else if (angleDif == 90 || angleDif == -270) {
-                    algString = " U' ";
+                    System.out.println("U'");
+                    algString = "U'";
                 } else if (angleDif == 270 || angleDif == -90) {
-                    algString = " U ";
+                    System.out.println("U");
+                    algString = "U";
                 }
-                algString = executeAlg(algString);
-                System.out.println("Solver - Stage Seven: Top Edge Position Finished");
-                return;
+                System.out.printf("\n");
+                algString = executeAlgTest(algString);
+                return 1;
             }
-            algString += "RU'RURURU'R'U'RR ";
-            algString = executeAlg(algString);
+            algString = "RU'RURURU'R'U'RR";
+            algString = executeAlgTest(algString);
         }
     }
 
@@ -561,31 +737,6 @@ public class Solver {
         System.out.println("");
     }
 
-    public String executeAlg(String algString) {
-        System.out.printf("          Current Algo: \"%s\"\n", algString);
-        for (int i = 0; i < algString.length(); i++) {
-            Character curr = algString.charAt(i);
-            if (curr.equals('\'') || curr.equals(' ')){
-                continue;
-            }
-            boolean dir = ((Character) algString.charAt(i+1)).equals('\'') ? false : true;
-            if (curr.equals('F')) {
-                this.rubiksCube.forward(this.axis, dir, rSpeed);
-            } else if (curr.equals('B')) {
-                this.rubiksCube.backward(this.axis, dir, rSpeed);
-            } else if (curr.equals('L')) {
-                this.rubiksCube.left(this.axis, dir, rSpeed);
-            } else if (curr.equals('R')) {
-                this.rubiksCube.right(this.axis, dir, rSpeed);
-            } else if (curr.equals('U')) {
-                this.rubiksCube.up(this.axis, dir, rSpeed);
-            } else if (curr.equals('D')) {
-                this.rubiksCube.down(this.axis, dir, rSpeed);
-            }
-        }
-        return "";
-    }
-
     private int getAngle(double x, double y){
         int angle = 0;
         if (x == 0 && y == 1){
@@ -599,26 +750,6 @@ public class Solver {
     }
 
     private int getCrossPattern(Entity cube1, Entity cube2) {
-        // no cube provided (no cubes were pointing up other than the middle cube)
-        if (cube1 == null) {
-            return 1;
-        }
-        MyPoint currentPos1 = ((Entity) cube1).getCurrentSPosition();
-        double x1 = currentPos1.x;
-        double z1 = currentPos1.z;
-        MyPoint currentPos2 = ((Entity) cube2).getCurrentSPosition();
-        double x2 = currentPos2.x;
-        double z2 = currentPos2.z;
-        // Straight line pattern
-        if (x1 == x2 || z1 == z2) {
-            return 2;
-        } // "r" pattern
-        else {
-            return 3;
-        }
-    }
-
-    private int getCornerPattern(Entity cube1, Entity cube2, Entity cube3, Entity cube4) {
         // no cube provided (no cubes were pointing up other than the middle cube)
         if (cube1 == null) {
             return 1;

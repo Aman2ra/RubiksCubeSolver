@@ -2,7 +2,6 @@ package Solver;
 
 
 import Solver.BasicBuilders.MyPoint;
-import Solver.Temp.EntityManager;
 import Solver.UserInputs.UserInput;
 
 import javax.swing.*;
@@ -14,9 +13,10 @@ public class DisplayWindow extends Canvas implements Runnable {
     private JFrame frame;
     private static String title = "Rubiks Cube Solver";
     private static boolean running = false;
-    public static final int WIDTH = 720;
-    public static final int HEIGHT = 1080;
-    private Color skybox_colour = new Color(110,60,110);
+    public static final int WIDTH = 1080;
+    public static final int HEIGHT = 720;
+//    private Color skybox_colour = new Color(110,60,110);
+    private Color skybox_colour = Color.BLACK;
 
     private EntityManager entityManager;
 

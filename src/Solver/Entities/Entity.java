@@ -1,4 +1,4 @@
-package Solver.Temp;
+package Solver.Entities;
 
 import Solver.BasicBuilders.*;
 
@@ -15,6 +15,7 @@ public class Entity implements IEntity {
     private String colours;
     private double size;
     private MyPoint originalPosition;
+    private boolean visible = true;
     private int[] orientation = {0, 1, 2, 3, 4, 5};
 
     public Entity(List<Polyhedron> polyhedron){
@@ -30,8 +31,10 @@ public class Entity implements IEntity {
 
     @Override
     public void render(Graphics g) {
-        for (MyPolygon poly : this.polygons){
-            poly.render(g);
+        if (this.visible) {
+            for (MyPolygon poly : this.polygons) {
+                poly.render(g);
+            }
         }
     }
 
@@ -55,9 +58,9 @@ public class Entity implements IEntity {
 
     }
 
-    private int xCounter = 0;
-    private int yCounter = 0;
-    private int zCounter = 0;
+    private double xCounter = 0;
+    private double yCounter = 0;
+    private double zCounter = 0;
     @Override
     public void rotate(Axis axis, boolean CW, double xDegrees, double yDegrees, double zDegrees) {
         for (Polyhedron polyhedron : this.polyhedron){
@@ -75,7 +78,7 @@ public class Entity implements IEntity {
         if (zDegrees > 0) {
             this.zCounter += zDegrees;
         }
-        if (this.xCounter == 90 || this.yCounter == 90 || this.zCounter == 90) {
+        if (this.xCounter >= 90 || this.yCounter >= 90 || this.zCounter >= 90) {
             correctOrientation(CW,xDegrees,yDegrees,zDegrees);
             this.xCounter = 0;
             this.yCounter = 0;
@@ -282,26 +285,6 @@ public class Entity implements IEntity {
         return arrow;
     }
 
-    public static IEntity plane(double offset, int direction) {
-        List<Polyhedron> axis = new ArrayList<Polyhedron>();
-        MyPoint p1 = new MyPoint(offset+5, -1000, 1000);
-        MyPoint p2 = new MyPoint(offset+5, -1000, -1000);
-        MyPoint p3 = new MyPoint(offset+5, 1000, -1000);
-        MyPoint p4 = new MyPoint(offset+5, 1000, 1000);
-        MyPoint p5 = new MyPoint(offset-5, -1000, 1000);
-        MyPoint p6 = new MyPoint(offset-5, -1000, -1000);
-        MyPoint p7 = new MyPoint(offset-5, 1000, -1000);
-        MyPoint p8 = new MyPoint(offset-5, 1000, 1000);
-        axis.add(new Polyhedron(new Color(255,155,255),
-                new MyPolygon(p1, p2, p3, p4),
-                new MyPolygon(p1, p4, p8, p5),
-                new MyPolygon(p2, p3, p7, p6),
-                new MyPolygon(p4, p3, p7, p8),
-                new MyPolygon(p1, p2, p6, p5),
-                new MyPolygon(p5, p6, p7, p8)));
-        return new Entity(axis);
-    }
-
     public void printCoord() {
         System.out.printf("%s : (%4.2f, %4.2f, %4.2f)\n", this.id, this.centerPosition.xStandard, this.centerPosition.yStandard, this.centerPosition.zStandard);
     }
@@ -320,6 +303,11 @@ public class Entity implements IEntity {
 
     public MyPoint getCenter() {
         return new MyPoint(this.centerPosition.xStandard, this.centerPosition.yStandard, this.centerPosition.zStandard);
+    }
+
+    @Override
+    public void setVisible(boolean visible) {
+        this.visible = visible;
     }
 
     public void setOriginalPosition(double x, double y, double z) {

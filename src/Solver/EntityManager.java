@@ -1,9 +1,9 @@
-package Solver.Temp;
+package Solver;
 
-import Solver.BasicBuilders.Axis;
-import Solver.BasicBuilders.MyPoint;
-import Solver.BasicBuilders.PointConverter;
-import Solver.Camera;
+import Solver.BasicBuilders.*;
+import Solver.Entities.Entity;
+import Solver.Entities.IEntity;
+import Solver.Entities.RubiksCube;
 import Solver.UserInputs.ClickType;
 import Solver.UserInputs.Keyboard;
 import Solver.UserInputs.Mouse;
@@ -23,22 +23,23 @@ public class EntityManager {
     private double moveSpeed = 10;
 
     private boolean direction = true;
-//    private int animationTime = 90;
-    private int animationTime = 1;
+    private int animationTime = 20;
+//    private int animationTime = 1;
     private int animationTimeLeft = animationTime;
-    private double rotateSpeed = 90.0/animationTime;
+    private double rotateSpeed = 90.0/ ((double) animationTime);
     private boolean locked = false;
     private boolean autoModeLock = false;
     private boolean scramble = false;
     private boolean solve = false;
     private int numMoves = 0;
     private int currentMove;
-    private int counter;
+    private int randomMoves = 100;
 
     private Mouse mouse;
     private Keyboard keyboard;
     protected Camera camera;
     private RubiksCube rubiksCube;
+    private RubiksCube hiddenRubiksCube;
     private Axis axis;
     private Solver solver;
 
@@ -57,13 +58,16 @@ public class EntityManager {
 
         Color[] face_colours = {Color.RED, new Color(255,120,30), Color.BLUE, Color.GREEN, Color.YELLOW, Color.WHITE, Color.BLACK};
         this.rubiksCube = new RubiksCube(size,0,0,0,dist, face_colours);
+        this.hiddenRubiksCube = new RubiksCube(size,0,0,0,dist, face_colours);
+        this.hiddenRubiksCube.setVisible(false);
         this.entities.add(this.rubiksCube);
+        this.entities.add(this.hiddenRubiksCube);
 
-        this.solver = new Solver(this.rubiksCube, this.axis);
+        this.solver = new Solver(this.hiddenRubiksCube, this.axis, this.animationTime);
 
-        this.entities.add(Entity.axis(5,2,0,0,0));
-        this.entities.add(Entity.axis(5,1,0,0,0));
-        this.entities.add(Entity.axis(5,0,0,0,0));
+//        this.entities.add(Entity.axis(5,2,0,0,0));
+//        this.entities.add(Entity.axis(5,1,0,0,0));
+//        this.entities.add(Entity.axis(5,0,0,0,0));
         for (IEntity entity : this.entities) {
             entity.translate(-this.camera.getX(), -this.camera.getY(), -this.camera.getZ());
         }
@@ -105,7 +109,7 @@ public class EntityManager {
             } else if (this.keyboard.getScramble() && !autoModeLock) {
                 autoModeLock = true;
                 scramble = true;
-                numMoves = 100*animationTime;
+                numMoves = randomMoves*animationTime;
             } else if (this.keyboard.getSolve() && !autoModeLock) {
                 autoModeLock = true;
                 solve = true;
@@ -130,18 +134,22 @@ public class EntityManager {
                 System.out.println("---------------------------------------");
             }
         } else if (autoModeLock && solve) {
-            this.solver.solveCube();
-            autoModeLock = false;
-            solve = false;
+            int[] solverMove = this.solver.getNextMove();
+            if (solverMove[0] == -1 && solverMove[1] == -1) {
+                System.out.println("Finished solving");
+                autoModeLock = false;
+                solve = false;
+            } else {
+                currentMove = solverMove[0];
+                direction = solverMove[1] == 1 ? true : false;
+                rotateCube(solverMove[0], direction);
+            }
         } else if (locked) {
-            rotateSpeed = 90.0/90.0;
             rotateCube(currentMove, direction);
             animationTimeLeft--;
-            rotateSpeed = 90.0/animationTime;
             if (animationTimeLeft == 0) {
                 locked = false;
                 animationTimeLeft = animationTime;
-                counter = 0;
             }
         } else if (this.keyboard.getAlt()) {
             direction = true;
@@ -150,27 +158,21 @@ public class EntityManager {
             }
 
             if (this.keyboard.getLeft()) {
-                animationTimeLeft = 90;
                 currentMove = 1;
                 locked = true;
             } else if (this.keyboard.getRight()) {
-                animationTimeLeft = 90;
                 currentMove = 2;
                 locked = true;
             } else if (this.keyboard.getUp()) {
-                animationTimeLeft = 90;
                 currentMove = 3;
                 locked = true;
             } else if (this.keyboard.getDown()) {
-                animationTimeLeft = 90;
                 currentMove = 4;
                 locked = true;
             } else if (this.keyboard.getForward()) {
-                animationTimeLeft = 90;
                 currentMove = 5;
                 locked = true;
             } else if (this.keyboard.getBackward()) {
-                animationTimeLeft = 90;
                 currentMove = 6;
                 locked = true;
             }
@@ -222,6 +224,31 @@ public class EntityManager {
                 System.out.printf("No Move: %d %b\n", move, direction);
                 return;
         }
+        if (!solve) {
+            switch (move) {
+                case 1:
+                    this.hiddenRubiksCube.left(this.axis, direction, this.rotateSpeed);
+                    break;
+                case 2:
+                    this.hiddenRubiksCube.right(this.axis, direction, this.rotateSpeed);
+                    break;
+                case 3:
+                    this.hiddenRubiksCube.forward(this.axis, direction, this.rotateSpeed);
+                    break;
+                case 4:
+                    this.hiddenRubiksCube.backward(this.axis, direction, this.rotateSpeed);
+                    break;
+                case 5:
+                    this.hiddenRubiksCube.up(this.axis, direction, this.rotateSpeed);
+                    break;
+                case 6:
+                    this.hiddenRubiksCube.down(this.axis, direction, this.rotateSpeed);
+                    break;
+                default:
+                    System.out.printf("No Move (Solver): %d %b\n", move, direction);
+                    return;
+            }
+        }
         sortEntities();
         return;
     }
@@ -242,6 +269,7 @@ public class EntityManager {
 
     public void sortEntities() {
         this.rubiksCube.sortEntities();
+        this.hiddenRubiksCube.sortEntities();
         Entity.sortEntities(this.entities);
     }
 

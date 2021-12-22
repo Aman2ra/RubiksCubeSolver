@@ -1,4 +1,4 @@
-package Solver.Temp;
+package Solver.Entities;
 
 import Solver.BasicBuilders.MyPoint;
 import Solver.BasicBuilders.MyPolygon;
