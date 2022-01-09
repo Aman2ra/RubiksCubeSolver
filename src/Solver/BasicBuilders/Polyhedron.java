@@ -2,6 +2,7 @@ package Solver.BasicBuilders;
 
 import java.awt.*;
 
+// Object made of several polygons
 public class Polyhedron {
     protected MyPolygon[] polygons;
     private Color colour;
@@ -16,39 +17,6 @@ public class Polyhedron {
         this.polygons = polys;
         this.setPolyColour();
         this.sortPolys();
-    }
-
-    public void render(Graphics g) {
-        for (MyPolygon poly : this.polygons){
-            poly.render(g);
-        }
-    }
-
-    public void translate(double x, double y, double z){
-        for (MyPolygon poly : this.polygons){
-            poly.translate(x, y, z);
-        }
-    }
-
-    public void rotate(boolean CW, double xDegrees, double yDegrees, double zDegrees){
-        for (MyPolygon poly : this.polygons){
-            poly.rotate(CW, xDegrees, yDegrees, zDegrees);
-        }
-    }
-
-    public void rotate(Axis axis, boolean CW, double xDegrees, double yDegrees, double zDegrees){
-        for (MyPolygon poly : this.polygons){
-            poly.rotate(axis, CW, xDegrees, yDegrees, zDegrees);
-        }
-    }
-
-    public MyPolygon[] getPolygons(){
-        return this.polygons;
-    }
-
-
-    private void sortPolys(){
-        MyPolygon.sortPolygons(this.polygons);
     }
 
     public MyPoint getAveragePoint(){
@@ -70,9 +38,41 @@ public class Polyhedron {
         return new MyPoint(x, y, z);
     }
 
+    public MyPolygon[] getPolygons(){
+        return this.polygons;
+    }
+
+    public void render(Graphics g) {
+        for (MyPolygon poly : this.polygons){
+            poly.render(g);
+        }
+    }
+
+    public void rotate(boolean CW, double xDegrees, double yDegrees, double zDegrees){
+        for (MyPolygon poly : this.polygons){
+            poly.rotate(CW, xDegrees, yDegrees, zDegrees);
+        }
+    }
+
+    public void rotate(Axis axis, boolean CW, double xDegrees, double yDegrees, double zDegrees){
+        for (MyPolygon poly : this.polygons){
+            poly.rotate(axis, CW, xDegrees, yDegrees, zDegrees);
+        }
+    }
+
+    public void translate(double x, double y, double z){
+        for (MyPolygon poly : this.polygons){
+            poly.translate(x, y, z);
+        }
+    }
+
     private void setPolyColour(){
         for (MyPolygon poly : this.polygons) {
             poly.setColor(this.colour);
         }
+    }
+
+    private void sortPolys(){
+        MyPolygon.sortPolygons(this.polygons);
     }
 }

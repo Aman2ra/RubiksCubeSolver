@@ -1,6 +1,6 @@
 package Solver.BasicBuilders;
 
-
+// Vector class
 public class Vector {
     public MyPoint start, end;
 
@@ -14,37 +14,12 @@ public class Vector {
         end = new MyPoint(p2.x,p2.y,p2.z);
     }
 
-    public double getXComponent(){
-        return this.end.x - this.start.x;
-    }
-
-    public double getYComponent(){
-        return this.end.y - this.start.y;
-    }
-
-    public double getZComponent(){
-        return this.end.z - this.start.z;
-    }
-
     public static double magnitude(Vector v) {
         return Math.sqrt(Math.pow(v.getXComponent(), 2) + Math.pow(v.getYComponent(), 2) + Math.pow(v.getZComponent(), 2));
     }
 
     public static Vector scale(Vector v, double scaleFactor) {
         return new Vector(v.start, new MyPoint(scaleFactor*v.end.x,scaleFactor*v.end.y,scaleFactor*v.end.z));
-    }
-
-    public void translate(Vector v) {
-        double xTranslation = v.getXComponent();
-        double yTranslation = v.getYComponent();
-        double zTranslation = v.getZComponent();
-        this.start.x += xTranslation;
-        this.end.x += xTranslation;
-        this.start.y += yTranslation;
-        this.end.y += yTranslation;
-        this.start.z += zTranslation;
-        this.end.z += zTranslation;
-        return;
     }
 
     public static Vector add(Vector v1, Vector v2, double scale) {
@@ -80,5 +55,30 @@ public class Vector {
 
     public static double calcT(Vector v, MyPoint vP, MyPoint p){
         return -(v.getXComponent()*(p.x - vP.x) + v.getYComponent()*(p.y - vP.y) + v.getZComponent()*(p.z - vP.z))/(dotProduct(v,v));
+    }
+
+    public double getXComponent(){
+        return this.end.x - this.start.x;
+    }
+
+    public double getYComponent(){
+        return this.end.y - this.start.y;
+    }
+
+    public double getZComponent(){
+        return this.end.z - this.start.z;
+    }
+
+    public void translate(Vector v) {
+        double xTranslation = v.getXComponent();
+        double yTranslation = v.getYComponent();
+        double zTranslation = v.getZComponent();
+        this.start.x += xTranslation;
+        this.end.x += xTranslation;
+        this.start.y += yTranslation;
+        this.end.y += yTranslation;
+        this.start.z += zTranslation;
+        this.end.z += zTranslation;
+        return;
     }
 }

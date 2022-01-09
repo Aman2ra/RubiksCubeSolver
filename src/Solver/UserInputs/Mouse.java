@@ -2,6 +2,7 @@ package Solver.UserInputs;
 
 import java.awt.event.*;
 
+// Mouse class for mouse events
 public class Mouse implements MouseListener, MouseMotionListener, MouseWheelListener {
 
     private int mouseX = -1;

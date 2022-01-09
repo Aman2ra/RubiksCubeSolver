@@ -8,12 +8,15 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
+// Builds the Cubes for the Rubik's cube
 public class CubeBuilder {
+    // Builds a standard cube (Colors: Red, Orange, Blue, Green, White, Yellow)
     public static IEntity createCube(double size, double centerX, double centerY, double centerZ) {
         List<Polyhedron> cubeFaces = new ArrayList<Polyhedron>();
         double border_size = 10;
         Color border_colour = Color.BLACK;
 
+        // Creates the 8 corner points
         MyPoint p1 = new MyPoint(centerX + -size / 2, centerY + -size / 2, centerZ + size / 2);
         MyPoint p2 = new MyPoint(centerX + size / 2, centerY + -size / 2, centerZ + size / 2);
         MyPoint p3 = new MyPoint(centerX + size / 2, centerY + size / 2, centerZ + size / 2);
@@ -23,19 +26,19 @@ public class CubeBuilder {
         MyPoint p7 = new MyPoint(centerX + size / 2, centerY + size / 2, centerZ + -size / 2);
         MyPoint p8 = new MyPoint(centerX + -size / 2, centerY + size / 2, centerZ + -size / 2);
 
-        // Front
+        // Front Face
         cubeFaces.add(createSquare(p1, p2, p3, p4, 1, border_size, Color.RED, border_colour));
-        // Back
+        // Back Face
         cubeFaces.add(createSquare(p5, p6, p7, p8, 1, border_size, new Color(255,120,30), border_colour));
 
-        // Left
+        // Left Face
         cubeFaces.add(createSquare(p1, p5, p8, p4, 2, border_size, Color.BLUE, border_colour));
-        // Right
+        // Right Face
         cubeFaces.add(createSquare(p2, p6, p7, p3, 2, border_size, Color.GREEN, border_colour));
 
-        // Top
+        // Top Face
         cubeFaces.add(createSquare(p4, p3, p7, p8, 3, border_size, Color.YELLOW, border_colour));
-        // Bottom
+        // Bottom Face
         cubeFaces.add(createSquare(p1, p2, p6, p5, 3, border_size, Color.WHITE, border_colour));
 
         Entity cube = new Entity(cubeFaces);
@@ -45,6 +48,7 @@ public class CubeBuilder {
         return cube;
     }
 
+    // Builds a custom cube (custom colours)
     public static IEntity createCube2(double size, double centerX, double centerY, double centerZ, boolean[] faces, Color[] face_colours) {
         List<Polyhedron> cubeFaces = new ArrayList<Polyhedron>();
         double border_size = 10;
@@ -83,6 +87,7 @@ public class CubeBuilder {
         return cube;
     }
 
+    // Creates the square for each face of the cube
     private static Polyhedron createSquare(MyPoint p1, MyPoint p2, MyPoint p3, MyPoint p4, int orientation, double border_size, Color face_colour, Color border_colour){
 //        Color temp = border_colour;
 //        border_colour = face_colour;

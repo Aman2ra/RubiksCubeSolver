@@ -3,6 +3,7 @@ package Solver.UserInputs;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+// Keyboard class for key press events
 public class Keyboard implements KeyListener {
 
     private boolean[] keys = new boolean[66568];
@@ -62,8 +63,7 @@ public class Keyboard implements KeyListener {
     }
 
     @Override
-    public void keyTyped(KeyEvent e) {
-    }
+    public void keyTyped(KeyEvent e) {    }
 
     @Override
     public void keyPressed(KeyEvent e) {
