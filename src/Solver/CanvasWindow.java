@@ -8,7 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferStrategy;
 
-public class DisplayWindow extends Canvas implements Runnable {
+public class CanvasWindow extends Canvas implements Runnable {
     private Thread thread;
     private JFrame frame;
     private static String title = "Rubiks Cube Solver";
@@ -19,17 +19,19 @@ public class DisplayWindow extends Canvas implements Runnable {
     private Color skybox_colour = Color.BLACK;
 
     private EntityManager entityManager;
+    private InputsWindow inputsWindow;
 
     private UserInput userInput;
 
-    public DisplayWindow(){
+    public CanvasWindow(){
         this.frame = new JFrame();
         Dimension size = new Dimension(WIDTH, HEIGHT);
         this.setPreferredSize(size);
 
         this.entityManager = new EntityManager();
-
+        this.inputsWindow = new InputsWindow();
         this.userInput = new UserInput();
+
         this.addMouseListener(this.userInput.mouse);
         this.addMouseMotionListener(this.userInput.mouse);
         this.addMouseWheelListener(this.userInput.mouse);
@@ -37,15 +39,15 @@ public class DisplayWindow extends Canvas implements Runnable {
     }
 
     public static void main(String[] args){
-        DisplayWindow window = new DisplayWindow();
-        window.frame.setTitle(title);
-        window.frame.add(window);
-        window.frame.pack();
-        window.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        window.frame.setLocationRelativeTo(null);
-        window.frame.setResizable(false);
-        window.frame.setVisible(true);
-        window.start();
+        CanvasWindow mainWindow = new CanvasWindow();
+        mainWindow.frame.setTitle(title);
+        mainWindow.frame.add(mainWindow);
+        mainWindow.frame.pack();
+        mainWindow.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        mainWindow.frame.setLocationRelativeTo(null);
+        mainWindow.frame.setResizable(false);
+        mainWindow.frame.setVisible(true);
+        mainWindow.start();
     }
 
     public synchronized void start(){

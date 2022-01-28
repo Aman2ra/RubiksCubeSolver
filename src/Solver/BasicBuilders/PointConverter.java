@@ -1,6 +1,6 @@
 package Solver.BasicBuilders;
 
-import Solver.DisplayWindow;
+import Solver.CanvasWindow;
 import java.awt.*;
 
 // Class for transforming a point and getting values
@@ -25,8 +25,8 @@ public class PointConverter {
         double y3D = point3D.getAdjustedY() * scale;
         double z3D = point3D.getAdjustedZ() * scale;
         double[] newVal = scale(x3D, y3D, z3D);
-        int x2D = (int) (DisplayWindow.WIDTH / 2 + newVal[0]);
-        int y2D = (int) (DisplayWindow.HEIGHT / 2 - newVal[1]);
+        int x2D = (int) (CanvasWindow.WIDTH / 2 + newVal[0]);
+        int y2D = (int) (CanvasWindow.HEIGHT / 2 - newVal[1]);
         Point point2D = new Point(x2D, y2D);
         return point2D;
     }
