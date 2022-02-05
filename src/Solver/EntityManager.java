@@ -43,6 +43,8 @@ public class EntityManager {
     private Axis axis;
     private Solver solver;
 
+    private boolean changeAnimationSpeed = false;
+    private int newAnimationTime;
 
     public EntityManager() {
         this.entities = new ArrayList<IEntity>();
@@ -59,15 +61,16 @@ public class EntityManager {
         Color[] face_colours = {Color.RED, new Color(255,120,30), Color.BLUE, Color.GREEN, Color.YELLOW, Color.WHITE, Color.BLACK};
         this.rubiksCube = new RubiksCube(size,0,0,0,dist, face_colours);
         this.hiddenRubiksCube = new RubiksCube(size,0,0,0,dist, face_colours);
+        this.rubiksCube.setVisible(true);
         this.hiddenRubiksCube.setVisible(false);
         this.entities.add(this.rubiksCube);
         this.entities.add(this.hiddenRubiksCube);
 
         this.solver = new Solver(this.hiddenRubiksCube, this.axis, this.animationTime);
 
-//        this.entities.add(Entity.axis(5,2,0,0,0));
-//        this.entities.add(Entity.axis(5,1,0,0,0));
-//        this.entities.add(Entity.axis(5,0,0,0,0));
+        //this.entities.add(Entity.axis(5,2,0,0,0));
+        //this.entities.add(Entity.axis(5,1,0,0,0));
+        //this.entities.add(Entity.axis(5,0,0,0,0));
         for (IEntity entity : this.entities) {
             entity.translate(-this.camera.getX(), -this.camera.getY(), -this.camera.getZ());
         }
@@ -93,35 +96,40 @@ public class EntityManager {
             PointConverter.zoomOut();
         }
 
+        if (this.camButton) {
+            this.translate(this.camMoveX, this.camMoveY, this.camMoveZ);
+            this.camButton = false;
+            this.camMoveX = 0;
+            this.camMoveY = 0;
+            this.camMoveZ = 0;
+        }
+
         if (!this.keyboard.getAlt()) {
             if (this.keyboard.getLeft()) {
                 this.translate(-moveSpeed,0,0);
             } else if (this.keyboard.getRight()) {
                 this.translate(moveSpeed,0,0);
             } else if (this.keyboard.getForward()) {
-                this.translate(0,moveSpeed,0);
-            } else if (this.keyboard.getBackward()) {
-                this.translate(0,-moveSpeed,0);
-            } else if (this.keyboard.getUp()) {
                 this.translate(0,0,-moveSpeed);
-            } else if (this.keyboard.getDown()) {
+            } else if (this.keyboard.getBackward()) {
                 this.translate(0,0,moveSpeed);
-            } else if (this.keyboard.getScramble() && !autoModeLock) {
-                autoModeLock = true;
-                scramble = true;
-                numMoves = randomMoves*animationTime;
-            } else if (this.keyboard.getSolve() && !autoModeLock) {
-                autoModeLock = true;
-                solve = true;
+            } else if (this.keyboard.getUp()) {
+                this.translate(0,moveSpeed,0);
+            } else if (this.keyboard.getDown()) {
+                this.translate(0,-moveSpeed,0);
+            } else if (this.keyboard.getScramble() && !this.autoModeLock) {
+                this.startScramble();
+            } else if (this.keyboard.getSolve() && !this.autoModeLock) {
+                this.startSolve();
             }
         }
 
-        if (autoModeLock && scramble) {
+        if (this.autoModeLock && this.scramble) {
             this.randomMove();
-            numMoves--;
-            if (numMoves == 0){
-                autoModeLock = false;
-                scramble = false;
+            this.numMoves--;
+            if (this.numMoves == 0){
+                this.autoModeLock = false;
+                this.scramble = false;
                 System.out.println("Left = " + moveCounter[0]/animationTime);
                 System.out.println("Right = " + moveCounter[1]/animationTime);
                 System.out.println("Front = " + moveCounter[2]/animationTime);
@@ -133,98 +141,101 @@ public class EntityManager {
                 System.out.println("Move' = " + dirCounter[0]/animationTime);
                 System.out.println("---------------------------------------");
             }
-        } else if (autoModeLock && solve) {
+        } else if (this.autoModeLock && this.solve) {
             int[] solverMove = this.solver.getNextMove();
             if (solverMove[0] == -1 && solverMove[1] == -1) {
                 System.out.println("Finished solving");
-                autoModeLock = false;
-                solve = false;
+                this.autoModeLock = false;
+                this.solve = false;
             } else {
-                currentMove = solverMove[0];
-                direction = solverMove[1] == 1 ? true : false;
-                rotateCube(solverMove[0], direction);
+                this.currentMove = solverMove[0];
+                this.direction = solverMove[1] == 1 ? true : false;
+                this.rotateCube(solverMove[0], direction);
             }
-        } else if (locked) {
-            rotateCube(currentMove, direction);
-            animationTimeLeft--;
-            if (animationTimeLeft == 0) {
-                locked = false;
-                animationTimeLeft = animationTime;
+        } else if (this.locked) {
+            this.rotateCube(currentMove, direction);
+            this.animationTimeLeft--;
+            if (this.animationTimeLeft == 0) {
+                this.locked = false;
+                this.animationTimeLeft = animationTime;
+                if (this.changeAnimationSpeed) {
+                    updateAnimationTime();
+                }
             }
         } else if (this.keyboard.getAlt()) {
-            direction = true;
+            this.direction = true;
             if (this.keyboard.getReverse()) {
-                direction = false;
+                this.direction = false;
             }
 
             if (this.keyboard.getLeft()) {
-                currentMove = 1;
-                locked = true;
+                this.currentMove = 1;
+                this.locked = true;
             } else if (this.keyboard.getRight()) {
-                currentMove = 2;
-                locked = true;
+                this.currentMove = 2;
+                this.locked = true;
             } else if (this.keyboard.getUp()) {
-                currentMove = 3;
-                locked = true;
+                this.currentMove = 3;
+                this.locked = true;
             } else if (this.keyboard.getDown()) {
-                currentMove = 4;
-                locked = true;
+                this.currentMove = 4;
+                this.locked = true;
             } else if (this.keyboard.getForward()) {
-                currentMove = 5;
-                locked = true;
+                this.currentMove = 5;
+                this.locked = true;
             } else if (this.keyboard.getBackward()) {
-                currentMove = 6;
-                locked = true;
+                this.currentMove = 6;
+                this.locked = true;
             }
         }
 
         this.mouse.resetScroll();
         this.keyboard.update();
 
-        initialX = x;
-        initialY = y;
+        this.initialX = x;
+        this.initialY = y;
 
     }
 
     private int[] moveCounter = {0, 0, 0, 0, 0, 0};
     private int[] dirCounter = {0, 0};
 
-    private void rotateCube(int move, boolean direction) {
+    public void rotateCube(int move, boolean direction) {
         if (direction) {
-            dirCounter[1]++;
+            this.dirCounter[1]++;
         } else {
-            dirCounter[0]++;
+            this.dirCounter[0]++;
         }
         switch (move) {
             case 1:
                 this.rubiksCube.left(this.axis, direction, this.rotateSpeed);
-                moveCounter[0]++;
+                this.moveCounter[0]++;
                 break;
             case 2:
                 this.rubiksCube.right(this.axis, direction, this.rotateSpeed);
-                moveCounter[1]++;
+                this.moveCounter[1]++;
                 break;
             case 3:
                 this.rubiksCube.forward(this.axis, direction, this.rotateSpeed);
-                moveCounter[2]++;
+                this.moveCounter[2]++;
                 break;
             case 4:
                 this.rubiksCube.backward(this.axis, direction, this.rotateSpeed);
-                moveCounter[3]++;
+                this.moveCounter[3]++;
                 break;
             case 5:
                 this.rubiksCube.up(this.axis, direction, this.rotateSpeed);
-                moveCounter[4]++;
+                this.moveCounter[4]++;
                 break;
             case 6:
                 this.rubiksCube.down(this.axis, direction, this.rotateSpeed);
-                moveCounter[5]++;
+                this.moveCounter[5]++;
                 break;
             default:
                 System.out.printf("No Move: %d %b\n", move, direction);
                 return;
         }
-        if (!solve) {
+        if (!this.solve) {
             switch (move) {
                 case 1:
                     this.hiddenRubiksCube.left(this.axis, direction, this.rotateSpeed);
@@ -294,7 +305,6 @@ public class EntityManager {
     public MyPoint getCameraPos() {
         return this.camera.getPosition();
     }
-
     public MyPoint getAxisPos() {
         return this.axis.getPosition();
     }
@@ -314,10 +324,64 @@ public class EntityManager {
 
     public void randomMove(){
         Random random = new Random();
-        if (this.numMoves % animationTime == 0) {
-            currentRandMove = random.nextInt(1, 7);
-            currentRandDir = random.nextInt(0, 2) == 1 ? true:false;
+        if (this.numMoves % this.animationTime == 0) {
+            this.currentRandMove = random.nextInt(1, 7);
+            this.currentRandDir = random.nextInt(0, 2) == 1 ? true:false;
         }
-        this.rotateCube(currentRandMove, currentRandDir);
+        this.rotateCube(this.currentRandMove, this.currentRandDir);
+    }
+
+    public void rotateCube2(int dir){
+        if (!this.locked) {
+            this.currentMove = dir;
+            this.locked = true;
+        }
+    }
+
+    boolean camButton = false;
+    double camMoveX = 0;
+    double camMoveY = 0;
+    double camMoveZ = 0;
+    public void moveCamera(int x, int y, int z) {
+        this.camButton = true;
+        this.camMoveX = x * this.moveSpeed;
+        this.camMoveY = y * this.moveSpeed;
+        this.camMoveZ = z * this.moveSpeed;
+    }
+
+    public void startScramble(){
+        this.autoModeLock = true;
+        this.scramble = true;
+        this.numMoves = randomMoves*animationTime;
+    }
+
+    public void startSolve(){
+        this.autoModeLock = true;
+        this.solve = true;
+    }
+
+    public void replaceColor(Color newColor, Color prevColor) {
+        this.rubiksCube.replaceColor(newColor, prevColor);
+        //this.hiddenRubiksCube.replaceColor(newColor, prevColor);
+    }
+
+    public void setAnimationSpeed(int animationSpeed) {
+        this.changeAnimationSpeed = true;
+        this.newAnimationTime = animationSpeed;
+    }
+
+    public void setRandomMoves(int numMoves) {
+        this.randomMoves = numMoves;
+    }
+
+    public void setMoveSpeed(int moveSpeed) {
+        this.moveSpeed = moveSpeed;
+    }
+
+    private void updateAnimationTime(){
+        this.animationTime = 91 - newAnimationTime;
+        this.rotateSpeed = 90.0 / ((double) this.animationTime);
+        this.changeAnimationSpeed = false;
+        this.newAnimationTime = 0;
     }
 }

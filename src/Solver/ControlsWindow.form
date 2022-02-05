@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="Solver.ControlsWindow">
+  <grid id="27dc6" binding="window" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+    <margin top="0" left="0" bottom="0" right="0"/>
+    <constraints>
+      <xy x="369" y="200" width="332" height="321"/>
+    </constraints>
+    <properties>
+      <background color="-14145493"/>
+      <maximumSize width="-1" height="-1"/>
+      <minimumSize width="-1" height="-1"/>
+      <name value=""/>
+      <preferredSize width="259" height="320"/>
+    </properties>
+    <border type="none"/>
+    <children>
+      <splitpane id="65b3f" binding="cubeCameraSpecialSplit">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <background color="-14145493"/>
+          <dividerLocation value="104"/>
+          <dividerSize value="5"/>
+          <enabled value="true"/>
+          <orientation value="0"/>
+        </properties>
+        <border type="none"/>
+        <children>
+          <splitpane id="f4d2e" binding="cameraSpecialSplit">
+            <constraints>
+              <splitpane position="right"/>
+            </constraints>
+            <properties>
+              <background color="-14145493"/>
+              <dividerLocation value="104"/>
+              <dividerSize value="5"/>
+              <enabled value="true"/>
+              <orientation value="0"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <grid id="b2148" binding="cameraPanel" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <splitpane position="left"/>
+                </constraints>
+                <properties>
+                  <background color="-14145493"/>
+                </properties>
+                <border type="none"/>
+                <children>
+                  <grid id="1d131" binding="cameraButtons" layout-manager="GridLayoutManager" row-count="2" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                    <margin top="0" left="0" bottom="0" right="0"/>
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <background color="-14145493"/>
+                    </properties>
+                    <border type="none"/>
+                    <children>
+                      <component id="4ef3d" class="javax.swing.JButton" binding="camForwardButton">
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <background color="-11382186"/>
+                          <enabled value="true"/>
+                          <foreground color="-921089"/>
+                          <text value="Foward"/>
+                        </properties>
+                      </component>
+                      <component id="5ac81" class="javax.swing.JButton" binding="camLeftButton">
+                        <constraints>
+                          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <background color="-11382186"/>
+                          <enabled value="true"/>
+                          <foreground color="-921089"/>
+                          <text value="Left"/>
+                        </properties>
+                      </component>
+                      <component id="dd289" class="javax.swing.JButton" binding="camUpButton">
+                        <constraints>
+                          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <background color="-11382186"/>
+                          <enabled value="true"/>
+                          <foreground color="-921089"/>
+                          <text value="Up"/>
+                        </properties>
+                      </component>
+                      <component id="efc75" class="javax.swing.JButton" binding="camBackwardButton">
+                        <constraints>
+                          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <background color="-11382186"/>
+                          <enabled value="true"/>
+                          <foreground color="-921089"/>
+                          <text value="Backward"/>
+                        </properties>
+                      </component>
+                      <component id="71746" class="javax.swing.JButton" binding="camDownButton">
+                        <constraints>
+                          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <background color="-11382186"/>
+                          <enabled value="true"/>
+                          <foreground color="-921089"/>
+                          <text value="Down"/>
+                        </properties>
+                      </component>
+                      <component id="2f748" class="javax.swing.JButton" binding="camRightButton">
+                        <constraints>
+                          <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <background color="-11382186"/>
+                          <enabled value="true"/>
+                          <foreground color="-921089"/>
+                          <text value="Right"/>
+                        </properties>
+                      </component>
+                    </children>
+                  </grid>
+                  <grid id="76aed" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                    <margin top="0" left="0" bottom="0" right="0"/>
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <background color="-14145493"/>
+                    </properties>
+                    <border type="none"/>
+                    <children>
+                      <component id="27341" class="javax.swing.JTextPane" binding="cameraControlsTextPane" default-binding="true">
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <background color="-14145493"/>
+                          <editable value="false"/>
+                          <enabled value="true"/>
+                          <foreground color="-921089"/>
+                          <text value="Camera Controls"/>
+                        </properties>
+                      </component>
+                    </children>
+                  </grid>
+                </children>
+              </grid>
+              <grid id="3bb65" binding="specialPanel" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <splitpane position="right"/>
+                </constraints>
+                <properties>
+                  <background color="-14145493"/>
+                </properties>
+                <border type="none"/>
+                <children>
+                  <component id="e47aa" class="javax.swing.JTextPane" binding="specialTextPane" default-binding="true">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <background color="-14145493"/>
+                      <editable value="false"/>
+                      <enabled value="true"/>
+                      <foreground color="-921089"/>
+                      <text value="Special"/>
+                    </properties>
+                  </component>
+                  <grid id="d19f6" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                    <margin top="0" left="0" bottom="0" right="0"/>
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <background color="-14145493"/>
+                    </properties>
+                    <border type="none"/>
+                    <children>
+                      <component id="51d41" class="javax.swing.JButton" binding="scrambleButton" default-binding="true">
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <background color="-11382186"/>
+                          <enabled value="true"/>
+                          <foreground color="-921089"/>
+                          <text value="Scramble"/>
+                        </properties>
+                      </component>
+                      <component id="a221b" class="javax.swing.JButton" binding="solveButton" default-binding="true">
+                        <constraints>
+                          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <background color="-11382186"/>
+                          <enabled value="true"/>
+                          <foreground color="-921089"/>
+                          <text value="Solve"/>
+                        </properties>
+                      </component>
+                    </children>
+                  </grid>
+                  <component id="6ebe1" class="javax.swing.JButton" binding="showKeyboardControlsButton" default-binding="true">
+                    <constraints>
+                      <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <background color="-11382186"/>
+                      <enabled value="true"/>
+                      <foreground color="-921089"/>
+                      <text value="Show Keyboard Controls"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+            </children>
+          </splitpane>
+          <grid id="3bcd6" binding="cubePanel" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <splitpane position="left"/>
+            </constraints>
+            <properties>
+              <background color="-14145493"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <grid id="95f8d" binding="cubeControlsButton" layout-manager="GridLayoutManager" row-count="2" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <background color="-14145493"/>
+                </properties>
+                <border type="none"/>
+                <children>
+                  <component id="3c1f" class="javax.swing.JButton" binding="cubeTopButton">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <background color="-11382186"/>
+                      <enabled value="true"/>
+                      <foreground color="-921089"/>
+                      <text value="Top"/>
+                    </properties>
+                  </component>
+                  <component id="2d8b5" class="javax.swing.JButton" binding="cubeBottomButton">
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <background color="-11382186"/>
+                      <enabled value="true"/>
+                      <foreground color="-921089"/>
+                      <text value="Bottom"/>
+                    </properties>
+                  </component>
+                  <component id="609e4" class="javax.swing.JButton" binding="cubeLeftButton">
+                    <constraints>
+                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <background color="-11382186"/>
+                      <enabled value="true"/>
+                      <foreground color="-921089"/>
+                      <text value="Left"/>
+                    </properties>
+                  </component>
+                  <component id="bdb79" class="javax.swing.JButton" binding="cubeFrontButton">
+                    <constraints>
+                      <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <background color="-11382186"/>
+                      <enabled value="true"/>
+                      <foreground color="-921089"/>
+                      <text value="Front"/>
+                    </properties>
+                  </component>
+                  <component id="8836" class="javax.swing.JButton" binding="cubeBackButton">
+                    <constraints>
+                      <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <background color="-11382186"/>
+                      <enabled value="true"/>
+                      <foreground color="-921089"/>
+                      <text value="Back"/>
+                    </properties>
+                  </component>
+                  <component id="9bdba" class="javax.swing.JButton" binding="cubeRightButton">
+                    <constraints>
+                      <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <background color="-11382186"/>
+                      <enabled value="true"/>
+                      <foreground color="-921089"/>
+                      <text value="Right"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+              <grid id="929e6" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <background color="-14145493"/>
+                </properties>
+                <border type="none"/>
+                <children>
+                  <component id="4114f" class="javax.swing.JTextPane" binding="cubeControlsTextPane" default-binding="true">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <background color="-14145493"/>
+                      <editable value="false"/>
+                      <enabled value="true"/>
+                      <foreground color="-921089"/>
+                      <text value="Cube Controls"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+            </children>
+          </grid>
+        </children>
+      </splitpane>
+    </children>
+  </grid>
+</form>

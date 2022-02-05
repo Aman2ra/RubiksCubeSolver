@@ -6,6 +6,7 @@ import java.util.List;
 
 public class MyPolygon {
     protected MyPoint[] points;
+    private Color currentColor;
     private Color baseColour;
     private boolean visible;
 
@@ -15,6 +16,7 @@ public class MyPolygon {
     }
 
     public MyPolygon(Color colour, MyPoint... points){
+        this.currentColor = colour;
         this.baseColour = colour;
         this.createPointsArray(points);
         this.updateVisibitily();
@@ -84,7 +86,7 @@ public class MyPolygon {
             poly.addPoint(p.x, p.y);
         }
 
-        g.setColor(this.baseColour);
+        g.setColor(this.currentColor);
         g.fillPolygon(poly);
     }
 
@@ -106,7 +108,15 @@ public class MyPolygon {
 
     // Sets the color
     public void setColor(Color colour) {
-        this.baseColour = colour;
+        this.currentColor = colour;
+    }
+
+    public Color getBaseColour() {
+        return this.baseColour;
+    }
+
+    public Color getCurrentColour() {
+        return this.currentColor;
     }
 
     // Translates the polygon

@@ -2,7 +2,6 @@ package Solver.Entities;
 
 import Solver.BasicBuilders.Axis;
 import Solver.BasicBuilders.MyPoint;
-import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -178,6 +177,13 @@ public class RubiksCube implements IEntity{
         this.visible = visible;
     }
 
+    @Override
+    public void replaceColor(Color newColor, Color prevColor) {
+        for (IEntity entity : this.cubes) {
+            entity.replaceColor(newColor, prevColor);
+        }
+    }
+
     public void sortEntities() {
         Entity.sortEntities(this.cubes);
     }
@@ -277,5 +283,11 @@ public class RubiksCube implements IEntity{
 
     public List<IEntity> getAll() {
         return this.cubes;
+    }
+
+    public void changeColors(Color left, Color right, Color top, Color bottom, Color front, Color back) {
+        for (IEntity cube : this.cubes){
+
+        }
     }
 }

@@ -5,8 +5,13 @@ import Solver.Entities.Entity;
 import Solver.Entities.IEntity;
 import Solver.Entities.RubiksCube;
 
+import javax.swing.*;
+
 
 public class Solver {
+    private JFrame frame;
+    private JScrollPane scrollPane;
+
     private RubiksCube testRubiksCube;
     private Axis axis;
     private double testRSpeed = 90.0;

@@ -10,17 +10,14 @@ import java.awt.image.BufferStrategy;
 
 public class CanvasWindow extends Canvas implements Runnable {
     private Thread thread;
-    private JFrame frame;
+    public JFrame frame;
     private static String title = "Rubiks Cube Solver";
     private static boolean running = false;
-    public static final int WIDTH = 1080;
-    public static final int HEIGHT = 720;
-//    private Color skybox_colour = new Color(110,60,110);
+    public static final int WIDTH = 900;
+    public static final int HEIGHT = 506;
     private Color skybox_colour = Color.BLACK;
 
     private EntityManager entityManager;
-    private InputsWindow inputsWindow;
-
     private UserInput userInput;
 
     public CanvasWindow(){
@@ -29,25 +26,42 @@ public class CanvasWindow extends Canvas implements Runnable {
         this.setPreferredSize(size);
 
         this.entityManager = new EntityManager();
-        this.inputsWindow = new InputsWindow();
         this.userInput = new UserInput();
 
         this.addMouseListener(this.userInput.mouse);
         this.addMouseMotionListener(this.userInput.mouse);
         this.addMouseWheelListener(this.userInput.mouse);
         this.addKeyListener(this.userInput.keyboard);
+
+        this.startCanvas();
     }
 
-    public static void main(String[] args){
-        CanvasWindow mainWindow = new CanvasWindow();
-        mainWindow.frame.setTitle(title);
-        mainWindow.frame.add(mainWindow);
-        mainWindow.frame.pack();
-        mainWindow.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        mainWindow.frame.setLocationRelativeTo(null);
-        mainWindow.frame.setResizable(false);
-        mainWindow.frame.setVisible(true);
-        mainWindow.start();
+    public CanvasWindow(EntityManager entityManager){
+        this.frame = new JFrame();
+        Dimension size = new Dimension(WIDTH, HEIGHT);
+        this.setPreferredSize(size);
+
+        this.entityManager = entityManager;
+        this.userInput = new UserInput();
+
+        this.addMouseListener(this.userInput.mouse);
+        this.addMouseMotionListener(this.userInput.mouse);
+        this.addMouseWheelListener(this.userInput.mouse);
+        this.addKeyListener(this.userInput.keyboard);
+
+        this.startCanvas();
+    }
+
+    public void startCanvas() {
+        this.frame.setTitle(title);
+        this.frame.add(this);
+        this.frame.pack();
+        this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.frame.setLocationRelativeTo(null);
+        this.frame.setResizable(false);
+        this.frame.setVisible(true);
+        this.setLocation(this.getLocationX(), 0);
+        this.start();
     }
 
     public synchronized void start(){
@@ -121,6 +135,30 @@ public class CanvasWindow extends Canvas implements Runnable {
 
     private void update(){
         this.entityManager.update();
+    }
+
+    public void toFront() {
+        this.frame.toFront();
+    }
+
+    public int getLocationX() {
+        return this.frame.getX();
+    }
+
+    public int getLocationY() {
+        return this.frame.getY();
+    }
+
+    public int getWidth() {
+        return this.frame.getWidth();
+    }
+
+    public int getHeight() {
+        return this.frame.getHeight();
+    }
+
+    public void setLocation(int x, int y){
+        this.frame.setLocation(x, y);
     }
 
 }

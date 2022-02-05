@@ -12,7 +12,7 @@ public class Entity implements IEntity {
     private MyPolygon[] polygons;
     private MyPoint centerPosition;
     private String id;
-    private String colours;
+    private String baseColours;
     private double size;
     private MyPoint originalPosition;
     private boolean visible = true;
@@ -310,6 +310,15 @@ public class Entity implements IEntity {
         this.visible = visible;
     }
 
+    @Override
+    public void replaceColor(Color newColor, Color prevColor) {
+        for (MyPolygon poly : this.polygons) {
+            if (poly.getBaseColour().equals(prevColor)) {
+                poly.setColor(newColor);
+            }
+        }
+    }
+
     public void setOriginalPosition(double x, double y, double z) {
         this.originalPosition = new MyPoint(x, y, z);
     }
@@ -331,11 +340,11 @@ public class Entity implements IEntity {
     }
 
     public void setColours(String colours){
-        this.colours = colours;
+        this.baseColours = colours;
     }
 
     public String getColours(){
-        return this.colours;
+        return this.baseColours;
     }
 
     public void setSize(double size){

@@ -23,4 +23,6 @@ public interface IEntity {
     MyPoint getCenter();
 
     void setVisible(boolean visible);
+
+    void replaceColor(Color newColor, Color prevColor);
 }
