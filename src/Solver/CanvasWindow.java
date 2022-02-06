@@ -5,12 +5,17 @@ import Solver.BasicBuilders.MyPoint;
 import Solver.UserInputs.UserInput;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.image.BufferStrategy;
 
 public class CanvasWindow extends Canvas implements Runnable {
     private Thread thread;
     public JFrame frame;
+    public JFrame outputFrame;
+    public JScrollPane outputPane;
+    public JTextArea outputTextArea;
     private static String title = "Rubiks Cube Solver";
     private static boolean running = false;
     public static final int WIDTH = 900;
@@ -61,7 +66,57 @@ public class CanvasWindow extends Canvas implements Runnable {
         this.frame.setResizable(false);
         this.frame.setVisible(true);
         this.setLocation(this.getLocationX(), 0);
+        this.startOutputPane();
         this.start();
+    }
+
+    private void startOutputPane() {
+        this.outputTextArea = new JTextArea();
+        this.outputTextArea.setBackground(new Color(41,41,45));
+        this.outputTextArea.setForeground(new Color(241,241,255));
+        this.outputTextArea.setFont(new Font("Arial", Font.PLAIN, 16));
+        this.outputTextArea.setEditable(false);
+        this.outputTextArea.getDocument().addDocumentListener(new DocumentListener() {
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                goToBottom();
+            }
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                goToBottom();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent arg0) {
+                goToBottom();
+            }
+        });
+
+        this.outputPane = new JScrollPane(outputTextArea);
+        this.outputPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        this.outputPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        this.outputPane.setVisible(true);
+        this.outputPane.setPreferredSize(new Dimension(WIDTH - 10,HEIGHT/2));
+
+
+        this.outputFrame = new JFrame("Output");
+        this.outputFrame.setVisible(true);
+        this.outputFrame.setLocation(this.frame.getX(), this.frame.getY() + this.frame.getHeight());
+        this.outputFrame.setResizable(false);
+        this.outputFrame.getContentPane().add(this.outputPane);
+        this.outputFrame.getContentPane().setBackground(new Color(41,41,45));
+        this.outputFrame.getContentPane().setLayout(new FlowLayout());
+        this.outputFrame.pack();
+
+
+        this.outputTextArea.append("                    Output Console\n__________________________________\n");
+        this.entityManager.setOutputPane(this.outputTextArea);
+    }
+
+    private void goToBottom() {
+        this.outputTextArea.setCaretPosition(this.outputTextArea.getDocument().getLength());
     }
 
     public synchronized void start(){

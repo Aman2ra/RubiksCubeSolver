@@ -135,8 +135,13 @@ public class SettingsWindow {
             @Override
             public void stateChanged(ChangeEvent e) {
                 int animationSpeed = sliderAnimationSpeed.getValue();
+                if (animationSpeed == 0) {
+                    animationSpeed = 1;
+                } else if (animationSpeed == 90) {
+                    animationSpeed = 89;
+                }
                 sliderAnimationSpeed.setValue(animationSpeed);
-                setAnimationSpeed(animationSpeed);
+                setAnimationSpeed(90 - animationSpeed);
             }
         });
         moveSpeedTextField.addActionListener(new ActionListener() {

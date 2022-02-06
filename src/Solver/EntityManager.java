@@ -9,6 +9,7 @@ import Solver.UserInputs.Keyboard;
 import Solver.UserInputs.Mouse;
 import Solver.UserInputs.UserInput;
 
+import javax.swing.*;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
@@ -24,7 +25,6 @@ public class EntityManager {
 
     private boolean direction = true;
     private int animationTime = 20;
-//    private int animationTime = 1;
     private int animationTimeLeft = animationTime;
     private double rotateSpeed = 90.0/ ((double) animationTime);
     private boolean locked = false;
@@ -45,6 +45,8 @@ public class EntityManager {
 
     private boolean changeAnimationSpeed = false;
     private int newAnimationTime;
+
+    private JTextArea outputPane;
 
     public EntityManager() {
         this.entities = new ArrayList<IEntity>();
@@ -67,6 +69,7 @@ public class EntityManager {
         this.entities.add(this.hiddenRubiksCube);
 
         this.solver = new Solver(this.hiddenRubiksCube, this.axis, this.animationTime);
+        this.solver.setOutputPane(this.outputPane);
 
         //this.entities.add(Entity.axis(5,2,0,0,0));
         //this.entities.add(Entity.axis(5,1,0,0,0));
@@ -130,21 +133,13 @@ public class EntityManager {
             if (this.numMoves == 0){
                 this.autoModeLock = false;
                 this.scramble = false;
-                System.out.println("Left = " + moveCounter[0]/animationTime);
-                System.out.println("Right = " + moveCounter[1]/animationTime);
-                System.out.println("Front = " + moveCounter[2]/animationTime);
-                System.out.println("Back = " + moveCounter[3]/animationTime);
-                System.out.println("Top = " + moveCounter[4]/animationTime);
-                System.out.println("Bottom = " + moveCounter[5]/animationTime);
-
-                System.out.println("Move = " + dirCounter[1]/animationTime);
-                System.out.println("Move' = " + dirCounter[0]/animationTime);
-                System.out.println("---------------------------------------");
+                this.outputScrambleStats();
             }
         } else if (this.autoModeLock && this.solve) {
             int[] solverMove = this.solver.getNextMove();
             if (solverMove[0] == -1 && solverMove[1] == -1) {
-                System.out.println("Finished solving");
+                this.outputPane.append("----------Finished solving----------\n");
+                this.outputPane.append("____________________________________\n");
                 this.autoModeLock = false;
                 this.solve = false;
             } else {
@@ -158,9 +153,6 @@ public class EntityManager {
             if (this.animationTimeLeft == 0) {
                 this.locked = false;
                 this.animationTimeLeft = animationTime;
-                if (this.changeAnimationSpeed) {
-                    updateAnimationTime();
-                }
             }
         } else if (this.keyboard.getAlt()) {
             this.direction = true;
@@ -189,6 +181,10 @@ public class EntityManager {
             }
         }
 
+        if (this.changeAnimationSpeed && ((!this.locked && !this.autoModeLock)||(this.scramble && this.numMoves % this.animationTime == 0)||(this.solve && !this.solver.isAnimationLocked()))) {
+            updateAnimationTime();
+        }
+
         this.mouse.resetScroll();
         this.keyboard.update();
 
@@ -197,39 +193,25 @@ public class EntityManager {
 
     }
 
-    private int[] moveCounter = {0, 0, 0, 0, 0, 0};
-    private int[] dirCounter = {0, 0};
-
     public void rotateCube(int move, boolean direction) {
-        if (direction) {
-            this.dirCounter[1]++;
-        } else {
-            this.dirCounter[0]++;
-        }
         switch (move) {
             case 1:
                 this.rubiksCube.left(this.axis, direction, this.rotateSpeed);
-                this.moveCounter[0]++;
                 break;
             case 2:
                 this.rubiksCube.right(this.axis, direction, this.rotateSpeed);
-                this.moveCounter[1]++;
                 break;
             case 3:
                 this.rubiksCube.forward(this.axis, direction, this.rotateSpeed);
-                this.moveCounter[2]++;
                 break;
             case 4:
                 this.rubiksCube.backward(this.axis, direction, this.rotateSpeed);
-                this.moveCounter[3]++;
                 break;
             case 5:
                 this.rubiksCube.up(this.axis, direction, this.rotateSpeed);
-                this.moveCounter[4]++;
                 break;
             case 6:
                 this.rubiksCube.down(this.axis, direction, this.rotateSpeed);
-                this.moveCounter[5]++;
                 break;
             default:
                 System.out.printf("No Move: %d %b\n", move, direction);
@@ -266,7 +248,7 @@ public class EntityManager {
 
     private void sleep() {
         try {
-            Thread.sleep(200);
+            Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -326,7 +308,10 @@ public class EntityManager {
         Random random = new Random();
         if (this.numMoves % this.animationTime == 0) {
             this.currentRandMove = random.nextInt(1, 7);
-            this.currentRandDir = random.nextInt(0, 2) == 1 ? true:false;
+            int dir = random.nextInt(0, 2);
+            this.currentRandDir = dir == 1 ? true:false;
+            this.moveCounter[this.currentRandMove-1]++;
+            this.dirCounter[dir]++;
         }
         this.rotateCube(this.currentRandMove, this.currentRandDir);
     }
@@ -349,13 +334,20 @@ public class EntityManager {
         this.camMoveZ = z * this.moveSpeed;
     }
 
+    private int[] moveCounter = {0, 0, 0, 0, 0, 0};
+    private int[] dirCounter = {0, 0};
+
     public void startScramble(){
+        this.outputPane.append("----------STARTING SCRAMBLE----------\n");
+        this.moveCounter = new int[]{0,0,0,0,0,0};
+        this.dirCounter = new int[]{0,0};
         this.autoModeLock = true;
         this.scramble = true;
         this.numMoves = randomMoves*animationTime;
     }
 
     public void startSolve(){
+        this.outputPane.append("------------STARTING SOLVE-----------\n");
         this.autoModeLock = true;
         this.solve = true;
     }
@@ -379,9 +371,35 @@ public class EntityManager {
     }
 
     private void updateAnimationTime(){
-        this.animationTime = 91 - newAnimationTime;
+        if (this.scramble) {
+            this.numMoves = (this.numMoves/this.animationTime)*this.newAnimationTime;
+        }
+        this.animationTime = newAnimationTime;
+        this.animationTimeLeft = this.animationTime;
         this.rotateSpeed = 90.0 / ((double) this.animationTime);
         this.changeAnimationSpeed = false;
         this.newAnimationTime = 0;
+        this.solver.setAnimationTime(this.animationTime);
+    }
+
+    public void setOutputPane(JTextArea textPane) {
+        this.outputPane = textPane;
+    }
+
+    public void outputScrambleStats() {
+        this.outputPane.append("----------SCRAMBLE STATISTICS----------\n");
+        this.outputPane.append("Total Moves = " + this.randomMoves + "\n");
+        this.outputPane.append("Moves: \n");
+        this.outputPane.append("    Left = " + this.moveCounter[0] + "\n");
+        this.outputPane.append("    Right = " + this.moveCounter[1] + "\n");
+        this.outputPane.append("    Front = " + this.moveCounter[2] + "\n");
+        this.outputPane.append("    Back = " + this.moveCounter[3] + "\n");
+        this.outputPane.append("    Top = " + this.moveCounter[4] + "\n");
+        this.outputPane.append("    Bottom = " + this.moveCounter[5] + "\n");
+
+        this.outputPane.append("\nDirection: \n");
+        this.outputPane.append("    Clockwise (Normal) = " + this.dirCounter[1] + "\n");
+        this.outputPane.append("    Counter-Clockise (Prime) = " + this.dirCounter[0] + "\n");
+        this.outputPane.append("_______________________________________" + "\n");
     }
 }

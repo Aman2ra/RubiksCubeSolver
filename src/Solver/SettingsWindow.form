@@ -61,7 +61,7 @@
               <paintTrack value="true"/>
               <requestFocusEnabled value="true"/>
               <snapToTicks value="false"/>
-              <value value="20"/>
+              <value value="80"/>
               <valueIsAdjusting value="false"/>
             </properties>
           </component>
@@ -97,7 +97,7 @@
                 <properties>
                   <background color="-14079699"/>
                   <foreground color="-921089"/>
-                  <text value="50"/>
+                  <text value="100"/>
                 </properties>
               </component>
             </children>

@@ -9,8 +9,7 @@ import javax.swing.*;
 
 
 public class Solver {
-    private JFrame frame;
-    private JScrollPane scrollPane;
+    private JTextArea outputPane;
 
     private RubiksCube testRubiksCube;
     private Axis axis;
@@ -24,18 +23,19 @@ public class Solver {
     private int[] currentMove;
     private int stage;
     private String message;
+    private String currOutputText;
 
     public Solver(RubiksCube hiddenCube, Axis axis, int animationTime) {
         this.testRubiksCube = hiddenCube;
         this.axis = axis;
         this.animationTime = animationTime;
         this.currentAnimationTime = 0;
-        algIndex = 0;
-        currentAlg = "";
-        stage = 0;
-        executingAlg = false;
-        animationLocked = false;
-        currentMove = new int[2];
+        this.algIndex = 0;
+        this.currentAlg = "";
+        this.stage = 0;
+        this.executingAlg = false;
+        this.animationLocked = false;
+        this.currentMove = new int[2];
     }
 
     public void solveCube() {
@@ -43,63 +43,63 @@ public class Solver {
         switch (this.stage){
             case 1:
                 // Stage One: Bottom [White] Cross
-                System.out.println("Solver - Stage One: Bottom Cross");
+                this.outputPane.append("Solver - Stage One: Bottom Cross\n");
                 success = solveStageOne();
                 if (success == 1) {
-                    this.message = "Solver - Stage One: Bottom Cross Finished";
+                    this.message = "Solver - Stage One: Bottom Cross Finished\n";
                 }
                 break;
             case 2:
                 // Stage Two: Bottom [White] Corners
-                System.out.println("Solver - Stage Two: Bottom Corners");
+                this.outputPane.append("Solver - Stage Two: Bottom Corners\n");
                 success = solveStageTwo();
                 if (success == 1) {
-                    this.message = "Solver - Stage Two: Bottom Corners Finished";
+                    this.message = "Solver - Stage Two: Bottom Corners Finished\n";
                 }
                 break;
             case 3:
                 // Stage Three: Middle Layer Edges
-                System.out.println("Solver - Stage Three: Middle Layer");
+                this.outputPane.append("Solver - Stage Three: Middle Layer\n");
                 success = solveStageThree();
                 if (success == 1) {
-                    this.message = "Solver - Stage Three: Middle Layer Finished";
+                    this.message = "Solver - Stage Three: Middle Layer Finished\n";
                 }
                 break;
             case 4:
                 // Stage Four: Top [Yellow] Cross (Edge Orientation)
-                System.out.println("Solver - Stage Four: Yellow Cross");
+                this.outputPane.append("Solver - Stage Four: Yellow Cross\n");
                 success = solveStageFour();
                 if (success == 1) {
-                    this.message = "Solver - Stage Four: Yellow Cross Finished";
+                    this.message = "Solver - Stage Four: Yellow Cross Finished\n";
                 }
                 break;
             case 5:
                 // Stage Five: Top [Yellow] Corner Orientation
-                System.out.println("Solver - Stage Five: Yellow Corners");
+                this.outputPane.append("Solver - Stage Five: Yellow Corners\n");
                 success = solveStageFive();
                 if (success == 1) {
-                    this.message = "Solver - Stage Five: Yellow Corners Finished";
+                    this.message = "Solver - Stage Five: Yellow Corners Finished\n";
                 } else if (success == -1) {
                     this.currentAlg = "";
                     this.currentMove[0] = -1;
                     this.currentMove[1] = -1;
-                    System.out.println("Solver - Stage Five: ERROR CUBE UNSOLVABLE");
+                    this.outputPane.append("Solver - Stage Five: ERROR CUBE UNSOLVABLE\n");
                 }
                 break;
             case 6:
                 // Stage Six:  Top [Yellow] Corner Position
-                System.out.println("Solver - Stage Six: Top Corner Position");
+                this.outputPane.append("Solver - Stage Six: Top Corner Position\n");
                 success = solveStageSix();
                 if (success == 1) {
-                    this.message = "Solver - Stage Six: Top Corner Position Finished";
+                    this.message = "Solver - Stage Six: Top Corner Position Finished\n";
                 }
                 break;
             case 7:
                 // Stage Seven: Top [Yellow] Edge Position
-                System.out.println("Solver - Stage Seven: Top Edge Position");
+                this.outputPane.append("Solver - Stage Seven: Top Edge Position\n");
                 success = solveStageSeven();
                 if (success == 1) {
-                    this.message = "Solver - Stage Seven: Top Edge Position Finished";
+                    this.message = "Solver - Stage Seven: Top Edge Position Finished\n";
                 }
                 break;
             default:
@@ -112,32 +112,36 @@ public class Solver {
 
     public int[] getNextMove() {
         if (!this.executingAlg) {
-            System.out.println("--------------------------------------------------------");
+            this.outputPane.append("--------------------------------------------------------\n");
             this.stage++;
             System.out.printf("getNextMove: Solving next stage: %d\n", this.stage);
             solveCube();
             this.executingAlg = true;
             this.animationLocked = false;
             this.currentAnimationTime = 0;
+            this.currOutputText = this.outputPane.getText();
         }
         if (this.executingAlg) {
             executeAlgMain();
             this.animationLocked = true;
             this.currentAnimationTime++;
-//            System.out.printf("        getNextMove: Animation %d/%d\n", this.currentAnimationTime, this.animationTime);
-        }
-        if (this.currentAnimationTime % this.animationTime == 0) {
-            System.out.printf("        getNextMove: Executed move: %d %d\n", this.currentMove[0], this.currentMove[1]);
-            System.out.printf("        getNextMove: ");
+
+            // output the algorithm
+            String algStr = "";
+            //System.out.printf("        getNextMove: Executed move: %d %d\n", this.currentMove[0], this.currentMove[1]);
+            //System.out.printf("        getNextMove: ");
             if (this.algIndex != 0) {
                 for (int i = 0; i < this.currentAlg.length(); i++) {
                     if (i == this.algIndex) {
-                        System.out.printf("|");
+                        algStr += "|";
                     }
-                    System.out.printf("%c", this.currentAlg.charAt(i));
+                    algStr += this.currentAlg.charAt(i);
                 }
             }
-            System.out.printf("\n");
+            algStr += "\n";
+            this.outputPane.setText(currOutputText + algStr);
+        }
+        if (this.currentAnimationTime % this.animationTime == 0) {
             this.animationLocked = false;
             this.currentAnimationTime = 0;
             if (this.currentMove[0] == -1 && this.currentMove[1] == -1){
@@ -182,12 +186,12 @@ public class Solver {
                 this.currentMove[0] = 6;
                 this.currentMove[1] = dir;
             } else if (this.currentMove[0] != -1 && this.currentMove[1] != -1){
+                this.currOutputText += this.currentAlg + "\n" + this.message;
                 this.currentAlg = "";
                 this.algIndex = 0;
                 this.executingAlg = false;
                 this.currentMove[0] = -2;
                 this.currentMove[1] = -2;
-                System.out.println(this.message);
             }
         }
         return;
@@ -692,13 +696,13 @@ public class Solver {
                 MyPoint originalPos = edgePairs[0][1].getOriginalSPosition();
                 int angleDif = getAngle(currentPos.x, currentPos.z) - getAngle(originalPos.x, originalPos.z);
                 if (angleDif == 180 || angleDif == -180) {
-                    System.out.println("UU");
+                    this.outputPane.append("UU");
                     algString = "UU";
                 } else if (angleDif == 90 || angleDif == -270) {
-                    System.out.println("U'");
+                    this.outputPane.append("U'");
                     algString = "U'";
                 } else if (angleDif == 270 || angleDif == -90) {
-                    System.out.println("U");
+                    this.outputPane.append("U");
                     algString = "U";
                 }
                 System.out.printf("\n");
@@ -739,7 +743,7 @@ public class Solver {
             }
             System.out.printf(" %6s", temp);
         }
-        System.out.println("");
+        this.outputPane.append("");
     }
 
     private int getAngle(double x, double y){
@@ -773,5 +777,19 @@ public class Solver {
             return 3;
         }
     }
+
+    public boolean isAnimationLocked() {
+        return this.animationLocked;
+    }
+
+    public void setAnimationTime(int animationTime) {
+        this.animationTime = animationTime;
+        this.currentAnimationTime = 0;
+    }
+
+    public void setOutputPane(JTextArea textPane) {
+        this.outputPane = textPane;
+    }
+    
 
 }
