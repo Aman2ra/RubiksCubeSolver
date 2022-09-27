@@ -112,7 +112,7 @@
               <enabled value="true"/>
               <font/>
               <foreground color="-921089"/>
-              <text value="AnimationSpeed"/>
+              <text value="AnimationSpeed (Deg per Tick)"/>
             </properties>
           </component>
           <splitpane id="2f456" binding="movementSpeedSplit">

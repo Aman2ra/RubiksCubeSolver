@@ -7,6 +7,7 @@ public class MainWindow {
     private EntityManager entityManager;
 
     public MainWindow() {
+        // Sets up all the windows and starts the program
         this.entityManager = new EntityManager();
         this.canvasWindow = new CanvasWindow(this.entityManager);
         this.controlsWindow = new ControlsWindow(this.entityManager);
@@ -26,6 +27,9 @@ public class MainWindow {
         this.settingsWindow.setLocation(canvasX+canvasWidth-10,canvasY);
     }
 
+    /*
+    Main Function, runs the program
+     */
     public static void main(String[] args) {
         MainWindow mainWindow = new MainWindow();
     }

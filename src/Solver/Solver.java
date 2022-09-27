@@ -25,6 +25,9 @@ public class Solver {
     private String message;
     private String currOutputText;
 
+    /*
+    Sets up the solver
+     */
     public Solver(RubiksCube hiddenCube, Axis axis, int animationTime) {
         this.testRubiksCube = hiddenCube;
         this.axis = axis;
@@ -38,6 +41,9 @@ public class Solver {
         this.currentMove = new int[2];
     }
 
+    /*
+    Base solving function, solves the cubes using steps
+     */
     public void solveCube() {
         int success = 0;
         switch (this.stage){
@@ -110,6 +116,9 @@ public class Solver {
         return;
     }
 
+    /*
+    Gets the next move for the current algorithm
+     */
     public int[] getNextMove() {
         if (!this.executingAlg) {
             this.outputPane.append("--------------------------------------------------------\n");

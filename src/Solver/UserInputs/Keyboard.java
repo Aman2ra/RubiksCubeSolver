@@ -15,9 +15,9 @@ public class Keyboard implements KeyListener {
         this.forward = this.keys[KeyEvent.VK_UP] || this.keys[KeyEvent.VK_W];
         this.backward = this.keys[KeyEvent.VK_DOWN] || this.keys[KeyEvent.VK_S];
         this.up = this.keys[KeyEvent.VK_SPACE];
-        this.down = this.keys[KeyEvent.VK_CONTROL];
+        this.down = this.keys[KeyEvent.VK_C];
         this.reverse = this.keys[KeyEvent.VK_SHIFT];
-        this.alternate = this.keys[KeyEvent.VK_ALT];
+        this.alternate = this.keys[KeyEvent.VK_CONTROL];
         this.scramble = this.keys[KeyEvent.VK_1];
         this.solve = this.keys[KeyEvent.VK_2];
     }

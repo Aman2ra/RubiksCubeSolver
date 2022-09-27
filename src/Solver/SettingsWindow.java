@@ -7,6 +7,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/*
+Functions for the setings window
+ */
 public class SettingsWindow {
     private JFrame frame;
     private JPanel settingsPanel;

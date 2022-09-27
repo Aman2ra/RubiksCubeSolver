@@ -4,8 +4,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.*;
+
+/*
+Functions for the controls window
+ */
 
 public class ControlsWindow {
     private JPanel window;
@@ -169,10 +172,10 @@ public class ControlsWindow {
     private void openControlsFile() {
         String text = "";
         try {
-            File file = new File(System.getProperty("user.dir") + "\\src\\Controls.txt");
-            FileInputStream fis = new FileInputStream(file);
+            InputStream is = ControlsWindow.class.getResourceAsStream("Controls.txt");
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
             int r = 0;
-            while((r=fis.read())!=-1){
+            while((r=br.read())!=-1){
                 text += ((char)r);
             }
         } catch (Exception e) {
