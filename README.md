@@ -1,7 +1,7 @@
 # RubiksCubeSolver
 3D Rubiks cube, with solver
 
-Video Demo: https://youtu.be/KjQKPq3WVdg
+Video Demo: [https://youtu.be/KjQKPq3WVdg](https://youtu.be/-7Bg_-n9XWw)
 
 
 Running it yourself:
